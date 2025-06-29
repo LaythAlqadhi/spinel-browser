@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { memo, useState, useRef, useCallback } from 'react';
 import { useTheme } from 'tamagui';
 import { TextInput, Dimensions } from 'react-native';
-import { Search, Clock, Bookmark, TrendingUp, Globe } from 'lucide-react-native';
+import { Search, Clock, Bookmark } from 'lucide-react-native';
 import { useBrowserStore } from '@/stores/browserStore';
+import FaviconImage from '@/components/ui/FaviconImage';
 import { 
   YStack, 
   XStack, 
@@ -20,43 +21,55 @@ interface HomepageProps {
   onSearch: (query: string) => void;
 }
 
-export default function Homepage({ onSearch }: HomepageProps) {
+const Homepage = memo<HomepageProps>(({ onSearch }) => {
   const { color } = useTheme();
   const { history, bookmarks } = useBrowserStore();
   const [searchQuery, setSearchQuery] = useState('');
   const inputRef = useRef<TextInput>(null);
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     if (searchQuery.trim()) {
       onSearch(searchQuery.trim());
       setSearchQuery('');
     }
-  };
+  }, [searchQuery, onSearch]);
 
-  const handleQuickAction = (url: string) => {
+  const handleQuickAction = useCallback((url: string) => {
     onSearch(url);
-  };
+  }, [onSearch]);
 
   const recentHistory = history.slice(0, 6);
   const recentBookmarks = bookmarks.slice(0, 6);
 
-  const FaviconOrGlobe = ({ favicon, size = 16 }: { favicon?: string; size?: number }) => {
-    if (favicon) {
-      return (
-        <Image
-          source={{ uri: favicon }}
-          width={size}
-          height={size}
-          borderRadius="$2"
-          onError={() => {
-            // If favicon fails to load, we'll fall back to the globe icon
-            // This is handled by the parent component's conditional rendering
-          }}
-        />
-      );
-    }
-    return <Globe size={size} color={color.val} />;
-  };
+  const QuickActionItem = memo<{ item: any; onPress: (url: string) => void }>(({ item, onPress }) => (
+    <Button
+      onPress={() => onPress(item.url)}
+      height="auto"
+      paddingVertical="$2"
+    >
+      <XStack alignItems="center" space="$3">
+        <View
+          width={32}
+          height={32}
+          borderRadius="$4"
+          backgroundColor="$blue2"
+          alignItems="center"
+          justifyContent="center"
+          overflow="hidden"
+        >
+          <FaviconImage favicon={item.favicon} size={16} />
+        </View>
+        <YStack flex={1}>
+          <Text fontSize="$3" fontWeight="500" color="$color" numberOfLines={1}>
+            {item.title}
+          </Text>
+          <Text fontSize="$2" color="$gray10" numberOfLines={1}>
+            {item.url}
+          </Text>
+        </YStack>
+      </XStack>
+    </Button>
+  ));
 
   return (
     <ScrollView 
@@ -118,34 +131,11 @@ export default function Homepage({ onSearch }: HomepageProps) {
             </XStack>
             <YStack space="$2">
               {recentHistory.map((item, index) => (
-                <Button
-                  key={index}
-                  onPress={() => handleQuickAction(item.url)}
-                  height="auto"
-                  paddingVertical="$2"
-                >
-                  <XStack alignItems="center" space="$3">
-                    <View
-                      width={32}
-                      height={32}
-                      borderRadius="$4"
-                      backgroundColor="$blue2"
-                      alignItems="center"
-                      justifyContent="center"
-                      overflow="hidden"
-                    >
-                      <FaviconOrGlobe favicon={item.favicon} size={16} />
-                    </View>
-                    <YStack flex={1}>
-                      <Text fontSize="$3" fontWeight="500" color="$color" numberOfLines={1}>
-                        {item.title}
-                      </Text>
-                      <Text fontSize="$2" color="$gray10" numberOfLines={1}>
-                        {item.url}
-                      </Text>
-                    </YStack>
-                  </XStack>
-                </Button>
+                <QuickActionItem 
+                  key={`history-${index}`} 
+                  item={item} 
+                  onPress={handleQuickAction} 
+                />
               ))}
             </YStack>
           </YStack>
@@ -162,34 +152,11 @@ export default function Homepage({ onSearch }: HomepageProps) {
             </XStack>
             <YStack space="$2">
               {recentBookmarks.map((item, index) => (
-                <Button
-                  key={index}
-                  onPress={() => handleQuickAction(item.url)}
-                  height="auto"
-                  paddingVertical="$2"
-                >
-                  <XStack alignItems="center" space="$3">
-                    <View
-                      width={32}
-                      height={32}
-                      borderRadius="$4"
-                      backgroundColor="$blue2"
-                      alignItems="center"
-                      justifyContent="center"
-                      overflow="hidden"
-                    >
-                      <FaviconOrGlobe favicon={item.favicon} size={16} />
-                    </View>
-                    <YStack flex={1}>
-                      <Text fontSize="$3" fontWeight="500" color="$color" numberOfLines={1}>
-                        {item.title}
-                      </Text>
-                      <Text fontSize="$2" color="$gray10" numberOfLines={1}>
-                        {item.url}
-                      </Text>
-                    </YStack>
-                  </XStack>
-                </Button>
+                <QuickActionItem 
+                  key={`bookmark-${index}`} 
+                  item={item} 
+                  onPress={handleQuickAction} 
+                />
               ))}
             </YStack>
           </YStack>
@@ -197,4 +164,8 @@ export default function Homepage({ onSearch }: HomepageProps) {
       </YStack>
     </ScrollView>
   );
-}
+});
+
+Homepage.displayName = 'Homepage';
+
+export default Homepage;
