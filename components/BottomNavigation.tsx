@@ -33,7 +33,7 @@ export default function BottomNavigation({
   onDrawerPress,
   showHomepage 
 }: BottomNavigationProps) {
-  const { color } = useTheme()
+  const { color, background } = useTheme()
   const { tabs, activeTabId, isPrivateMode } = useTabs();
   const { theme } = useSettings();
   const { state } = useBrowserContext();
@@ -116,7 +116,7 @@ export default function BottomNavigation({
             position="absolute"
             top={-8}
             right={-8}
-            backgroundColor={isPrivateMode ? "$purple8" : "$blue8"}
+            backgroundColor={isPrivateMode ? "$purple8" : color.val}
             borderRadius="$10"
             minWidth={18}
             height={18}
@@ -126,7 +126,7 @@ export default function BottomNavigation({
           >
             <Text 
               fontSize="$1" 
-              color="white" 
+              color={isPrivateMode ? "white" : background.val}
               fontWeight="600"
               lineHeight={18}
             >
