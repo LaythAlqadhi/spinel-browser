@@ -274,7 +274,7 @@ export default function Menu({
       disabled: !activeTab?.url || activeTab.url === 'about:blank',
     },
     {
-      icon: <MonitorSpeaker size={24} color="#007AFF" />,
+      icon: <MonitorSpeaker size={24} color={color.val} />,
       title: activeTab?.desktopMode ? 'Request Mobile Site' : 'Request Desktop Site',
       subtitle: activeTab?.desktopMode 
         ? 'Switch to mobile version of the website'
