@@ -12,7 +12,7 @@ import {
   Code,
   Smartphone,
   Shield,
-  MonitorSpeaker,
+  MonitorSmartphone,
 } from 'lucide-react-native';
 import { useTabs, useSettings, useBookmarks, useBrowserContext } from '@/contexts/BrowserContext';
 import { useToastController } from '@tamagui/toast';
@@ -274,7 +274,7 @@ export default function Menu({
       disabled: !activeTab?.url || activeTab.url === 'about:blank',
     },
     {
-      icon: <MonitorSpeaker size={24} color={color.val} />,
+      icon: <MonitorSmartphone size={24} color={color.val} />,
       title: activeTab?.desktopMode ? 'Request Mobile Site' : 'Request Desktop Site',
       subtitle: activeTab?.desktopMode 
         ? 'Switch to mobile version of the website'
