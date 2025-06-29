@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Platform, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ViewShot, { captureRef } from 'react-native-view-shot';
-import { useBrowserContext, Tab } from '@/contexts/BrowserContext';
+import { useTabsStore, useHistoryStore, useSettingsStore, Tab } from '@/stores/browserStore';
 import Homepage from './Homepage';
 import { View } from 'tamagui';
 
@@ -22,8 +22,9 @@ export default function BrowserWebView({
   const webViewRef = useRef<WebView>(null);
   const viewShotRef = useRef<ViewShot>(null);
   const mountedRef = useRef<boolean>(false);
-  const { updateTab, addHistoryEntry, createTab } = useBrowserContext();
-  const { settings, theme } = useBrowserContext().state;
+  const { updateTab, createTab } = useTabsStore();
+  const { addHistoryEntry } = useHistoryStore();
+  const { settings, theme } = useSettingsStore();
   const [showHomepage, setShowHomepage] = useState(false);
   const [webViewBackgroundColor, setWebViewBackgroundColor] = useState('transparent');
   const [navigationState, setNavigationState] = useState({
@@ -747,7 +748,7 @@ export default function BrowserWebView({
           >
             <WebView
               ref={webViewRef}
-              incognito={false}
+              incognito={tab.isPrivate}
               source={{ uri: tab.url }}
               userAgent={getUserAgent()}
               onNavigationStateChange={handleNavigationStateChange}
@@ -772,8 +773,8 @@ export default function BrowserWebView({
               startInLoadingState={true}
               scalesPageToFit={false}
               mixedContentMode="always"
-              thirdPartyCookiesEnabled={true}
-              domStorageEnabled={true}
+              thirdPartyCookiesEnabled={!tab.isPrivate}
+              domStorageEnabled={!tab.isPrivate}
               javaScriptEnabled={true}
               pullToRefreshEnabled={true}
               renderToHardwareTextureAndroid={true}

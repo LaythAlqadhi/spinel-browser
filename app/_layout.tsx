@@ -8,7 +8,7 @@ import { useFonts } from 'expo-font';
 import { SplashScreen } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
-import { BrowserProvider, useSettings } from '@/contexts/BrowserContext';
+import { useBrowserStore, useSettingsStore } from '@/stores/browserStore';
 import { tamaguiConfig } from '../tamagui.config';
 import { YStack } from 'tamagui';
 
@@ -63,7 +63,7 @@ const CurrentToast = () => {
 
 // Inner component that has access to the theme context
 function AppContent() {
-  const { theme } = useSettings();
+  const { theme } = useSettingsStore();
   
   return (
     <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>
@@ -84,6 +84,7 @@ export default function RootLayout() {
   useFrameworkReady();
   
   const colorScheme = useColorScheme();
+  const initializeStore = useBrowserStore((state) => state.initializeStore);
 
   // Load Inter fonts
   const [fontsLoaded, fontError] = useFonts({
@@ -92,6 +93,13 @@ export default function RootLayout() {
     'InterLight': require('@tamagui/font-inter/otf/Inter-Light.otf'),
     'InterSemiBold': require('@tamagui/font-inter/otf/Inter-SemiBold.otf'),
   });
+
+  // Initialize store after fonts are loaded
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      initializeStore();
+    }
+  }, [fontsLoaded, fontError, initializeStore]);
 
   // Hide splash screen once fonts are loaded
   useEffect(() => {
@@ -115,9 +123,7 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <BrowserProvider>
-        <AppContent />
-      </BrowserProvider>
+      <AppContent />
     </SafeAreaProvider>
   );
 }

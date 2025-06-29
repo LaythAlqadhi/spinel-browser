@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTabs, useSettings, useBrowserContext } from '@/contexts/BrowserContext';
+import { useTabsStore, useSettingsStore, useBrowserStore } from '@/stores/browserStore';
 import BrowserWebView from '@/components/BrowserWebView';
 import NavigationBar from '@/components/NavigationBar';
 import TabManager from '@/components/TabManager';
@@ -32,9 +32,9 @@ interface EmulationSettings {
 }
 
 export default function BrowserScreen() {
-  const { tabs, activeTabId, createTab } = useTabs();
-  const { theme } = useSettings();
-  const { initializeStore } = useBrowserContext();
+  const { tabs, activeTabId, createTab } = useTabsStore();
+  const { theme } = useSettingsStore();
+  const initializeStore = useBrowserStore((state) => state.initializeStore);
   const insets = useSafeAreaInsets();
   const [showTabManager, setShowTabManager] = useState(false);
   const [showHomepage, setShowHomepage] = useState(false);
@@ -53,7 +53,7 @@ export default function BrowserScreen() {
 
   useEffect(() => {
     initializeStore();
-  }, []);
+  }, [initializeStore]);
 
   useEffect(() => {
     const activeTab = tabs.find(tab => tab.id === activeTabId);
