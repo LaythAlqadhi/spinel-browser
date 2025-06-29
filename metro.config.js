@@ -8,4 +8,10 @@ config.resolver.alias = {
   '@': path.resolve(__dirname, '.'),
 };
 
+config.resolver.unstable_conditionNames = [
+  'browser',
+  'require',
+  'react-native',
+];
+
 module.exports = config;
