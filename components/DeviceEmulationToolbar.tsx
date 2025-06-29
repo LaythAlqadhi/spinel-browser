@@ -11,7 +11,7 @@ import {
   ChevronDown,
   Maximize2,
 } from 'lucide-react-native';
-import { useSettings } from '@/contexts/BrowserContext';
+import { useSettingsStore } from '@/store/browserStore';
 import {
   XStack,
   Text,
@@ -65,7 +65,7 @@ const zoomLevels = [25, 50, 75, 100, 125, 150];
 
 export default function DeviceEmulationToolbar({ onEmulationSettingsChange, onClose }: DeviceEmulationToolbarProps) {
   const { color } = useTheme();
-  const { theme } = useSettings();
+  const { theme } = useSettingsStore();
   const [selectedDevice, setSelectedDevice] = useState<string>('responsive');
   const [customWidth, setCustomWidth] = useState(Math.floor(screenWidth).toString());
   const [customHeight, setCustomHeight] = useState(Math.floor(screenHeight).toString());
