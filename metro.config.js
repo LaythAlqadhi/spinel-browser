@@ -14,4 +14,9 @@ config.resolver.unstable_conditionNames = [
   'default',
 ];
 
+// Add watchFolders to ensure Metro properly watches react-native modules
+config.watchFolders = [
+  path.resolve(__dirname, './node_modules/react-native')
+];
+
 module.exports = config;
