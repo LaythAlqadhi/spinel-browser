@@ -12,11 +12,19 @@ export function useUrlSuggestions(query: string, isPrivateMode: boolean) {
     }
 
     const lowerQuery = query.toLowerCase();
+    const uniqueUrls = new Set<string>();
+    
     return history
-      .filter(entry => 
-        entry.url.toLowerCase().includes(lowerQuery) ||
-        entry.title.toLowerCase().includes(lowerQuery)
-      )
+      .filter(entry => {
+        const matchesQuery = entry.url.toLowerCase().includes(lowerQuery) ||
+                           entry.title.toLowerCase().includes(lowerQuery);
+        
+        if (matchesQuery && !uniqueUrls.has(entry.url)) {
+          uniqueUrls.add(entry.url);
+          return true;
+        }
+        return false;
+      })
       .slice(0, 5)
       .map(entry => entry.url);
   }, [history, query, settings.showSuggestions, isPrivateMode]);

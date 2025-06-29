@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTabsStore } from '@/stores/browserStore';
 import { useToastController } from '@tamagui/toast';
 
@@ -6,8 +6,15 @@ export function useZoomControl() {
   const { tabs, activeTabId, setTabZoom } = useTabsStore();
   const toast = useToastController();
   
-  const activeTab = tabs.find(tab => tab.id === activeTabId);
-  const currentZoom = activeTab?.zoomLevel || 100;
+  const activeTab = useMemo(() => 
+    tabs.find(tab => tab.id === activeTabId), 
+    [tabs, activeTabId]
+  );
+  
+  const currentZoom = useMemo(() => 
+    activeTab?.zoomLevel || 100, 
+    [activeTab?.zoomLevel]
+  );
 
   const applyZoom = useCallback((newZoom: number) => {
     if (!activeTab || activeTab.url === 'about:blank') {
@@ -49,10 +56,13 @@ export function useZoomControl() {
     return applyZoom(100);
   }, [applyZoom]);
 
+  const canZoomIn = useMemo(() => currentZoom < 150, [currentZoom]);
+  const canZoomOut = useMemo(() => currentZoom > 25, [currentZoom]);
+
   return {
     currentZoom,
-    canZoomIn: currentZoom < 150,
-    canZoomOut: currentZoom > 25,
+    canZoomIn,
+    canZoomOut,
     applyZoom,
     zoomIn,
     zoomOut,

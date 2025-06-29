@@ -1,9 +1,13 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTabsStore } from '@/stores/browserStore';
 
 export function useBrowserNavigation() {
   const { tabs, activeTabId, updateTab } = useTabsStore();
-  const activeTab = tabs.find(tab => tab.id === activeTabId);
+  
+  const activeTab = useMemo(() => 
+    tabs.find(tab => tab.id === activeTabId), 
+    [tabs, activeTabId]
+  );
 
   const navigateBack = useCallback(() => {
     if (!activeTab) return false;
@@ -49,11 +53,15 @@ export function useBrowserNavigation() {
     return false;
   }, [activeTab]);
 
+  const canGoBack = useMemo(() => activeTab?.canGoBack || false, [activeTab?.canGoBack]);
+  const canGoForward = useMemo(() => activeTab?.canGoForward || false, [activeTab?.canGoForward]);
+  const isLoading = useMemo(() => activeTab?.loading || false, [activeTab?.loading]);
+
   return {
     activeTab,
-    canGoBack: activeTab?.canGoBack || false,
-    canGoForward: activeTab?.canGoForward || false,
-    isLoading: activeTab?.loading || false,
+    canGoBack,
+    canGoForward,
+    isLoading,
     navigateBack,
     navigateForward,
     reload,

@@ -1,4 +1,4 @@
-import React, { memo, useState, useRef, useCallback } from 'react';
+import React, { memo, useState, useRef, useCallback, useMemo } from 'react';
 import { TextInput } from 'react-native';
 import { Search } from 'lucide-react-native';
 import { useTheme } from 'tamagui';
@@ -12,6 +12,32 @@ interface UrlInputProps {
   isPrivateMode?: boolean;
   onNavigate?: (url: string) => void;
 }
+
+const SuggestionItem = memo<{ suggestion: string; onPress: (url: string) => void }>(({ suggestion, onPress }) => {
+  const { color } = useTheme();
+  
+  return (
+    <Button
+      backgroundColor="transparent"
+      borderRadius="$0"
+      height={50}
+      paddingHorizontal="$4"
+      borderBottomWidth={1}
+      borderBottomColor="$borderColor"
+      onPress={() => onPress(suggestion)}
+      pressStyle={{ backgroundColor: '$gray3' }}
+    >
+      <XStack alignItems="center" space="$3">
+        <Search size={16} color={color.val} />
+        <Text fontSize="$4" color="$color" flex={1} numberOfLines={1}>
+          {suggestion}
+        </Text>
+      </XStack>
+    </Button>
+  );
+});
+
+SuggestionItem.displayName = 'SuggestionItem';
 
 const UrlInput = memo<UrlInputProps>(({ isPrivateMode = false, onNavigate }) => {
   const { color } = useTheme();
@@ -62,7 +88,15 @@ const UrlInput = memo<UrlInputProps>(({ isPrivateMode = false, onNavigate }) => 
     inputRef.current?.blur();
   }, [onNavigate, navigateToUrl]);
 
-  const displayValue = isEditing ? urlInput : (activeTab?.title || activeTab?.url || '');
+  const displayValue = useMemo(() => 
+    isEditing ? urlInput : (activeTab?.title || activeTab?.url || ''),
+    [isEditing, urlInput, activeTab?.title, activeTab?.url]
+  );
+
+  const showSuggestions = useMemo(() => 
+    isEditing && suggestions.length > 0,
+    [isEditing, suggestions.length]
+  );
 
   return (
     <YStack flex={1} position="relative">
@@ -97,7 +131,7 @@ const UrlInput = memo<UrlInputProps>(({ isPrivateMode = false, onNavigate }) => 
       </XStack>
       
       {/* URL Suggestions */}
-      {suggestions.length > 0 && (
+      {showSuggestions && (
         <YStack
           position="absolute"
           top={44}
@@ -111,24 +145,11 @@ const UrlInput = memo<UrlInputProps>(({ isPrivateMode = false, onNavigate }) => 
           zIndex={1000}
         >
           {suggestions.map((suggestion, index) => (
-            <Button
+            <SuggestionItem
               key={index}
-              backgroundColor="transparent"
-              borderRadius="$0"
-              height={50}
-              paddingHorizontal="$4"
-              borderBottomWidth={index < suggestions.length - 1 ? 1 : 0}
-              borderBottomColor="$borderColor"
-              onPress={() => handleSuggestionPress(suggestion)}
-              pressStyle={{ backgroundColor: '$gray3' }}
-            >
-              <XStack alignItems="center" space="$3">
-                <Search size={16} color={color.val} />
-                <Text fontSize="$4" color="$color" flex={1} numberOfLines={1}>
-                  {suggestion}
-                </Text>
-              </XStack>
-            </Button>
+              suggestion={suggestion}
+              onPress={handleSuggestionPress}
+            />
           ))}
         </YStack>
       )}
