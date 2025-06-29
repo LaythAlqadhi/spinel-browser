@@ -69,7 +69,7 @@ function AppContent() {
     <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>
       <ToastProvider>
         <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
         <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
