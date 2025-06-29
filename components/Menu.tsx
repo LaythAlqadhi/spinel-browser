@@ -14,7 +14,7 @@ import {
   Shield,
   MonitorSmartphone,
 } from 'lucide-react-native';
-import { useTabs, useSettings, useBookmarks, useBrowserContext } from '@/contexts/BrowserContext';
+import { useTabsStore, useSettingsStore, useBookmarksStore } from '@/store/browserStore';
 import { useToastController } from '@tamagui/toast';
 import ZoomSheet from './ZoomSheet';
 import { 
@@ -45,10 +45,9 @@ export default function Menu({
   onSettingsOpen
 }: MenuProps) {
   const { color } = useTheme();
-  const { tabs, activeTabId, createTab, isPrivateMode, toggleDesktopMode } = useTabs();
-  const { theme } = useSettings();
-  const { addBookmark } = useBookmarks();
-  const { state } = useBrowserContext();
+  const { tabs, activeTabId, createTab, isPrivateMode, toggleDesktopMode } = useTabsStore();
+  const { theme } = useSettingsStore();
+  const { addBookmark, bookmarks } = useBookmarksStore();
   const toast = useToastController();
   const [erudaEnabled, setErudaEnabled] = useState(false);
   const [showZoomSheet, setShowZoomSheet] = useState(false);
@@ -257,13 +256,13 @@ export default function Menu({
     {
       icon: <BookOpen size={24} color={color.val} />,
       title: 'Bookmarks',
-      subtitle: `${state.bookmarks.length} saved bookmarks`,
+      subtitle: `${bookmarks.length} saved bookmarks`,
       onPress: handleBookmarks,
     },
     {
       icon: <History size={24} color={color.val} />,
       title: 'History',
-      subtitle: `${state.history.length} visited pages`,
+      subtitle: `Browse your history`,
       onPress: handleHistory,
     },
     {
