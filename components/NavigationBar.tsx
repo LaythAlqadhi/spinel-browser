@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useTheme } from 'tamagui';
 import { TextInput, Platform } from 'react-native';
 import { RotateCcw, Share, Lock, Shield, TriangleAlert as AlertTriangle, Search, MonitorSpeaker } from 'lucide-react-native';
-import { useBrowserContext } from '@/contexts/BrowserContext';
+import { useBrowserStore } from '@/stores/browserStore';
 import { useToastController } from '@tamagui/toast';
 import * as Sharing from 'expo-sharing';
 import { 
@@ -22,8 +22,12 @@ interface NavigationBarProps {
 export default function NavigationBar({ onTabPress, onNewTab }: NavigationBarProps) {
   const { color } = useTheme();
   const {
-    state: { tabs, activeTabId, history, settings, theme, isPrivateMode },
-  } = useBrowserContext();
+    tabs,
+    activeTabId,
+    history,
+    settings,
+    isPrivateMode,
+  } = useBrowserStore();
   
   const toast = useToastController();
   const [urlInput, setUrlInput] = useState('');

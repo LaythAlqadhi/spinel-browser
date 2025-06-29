@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTheme } from 'tamagui';
 import { FlatList } from 'react-native';
 import { Bookmark, FolderPlus, Search, Trash2, Folder, Globe, X } from 'lucide-react-native';
-import { useBookmarks, useTabs, useSettings } from '@/contexts/BrowserContext';
+import { useBookmarksStore, useTabsStore, useSettingsStore } from '@/stores/browserStore';
 import { useToastController } from '@tamagui/toast';
 import {
   Sheet,
@@ -29,9 +29,9 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
     removeBookmark,
     createBookmarkFolder,
     deleteBookmarkFolder,
-  } = useBookmarks();
-  const { tabs, activeTabId, updateTab } = useTabs();
-  const { theme } = useSettings();
+  } = useBookmarksStore();
+  const { tabs, activeTabId, updateTab } = useTabsStore();
+  const { theme } = useSettingsStore();
   const toast = useToastController();
 
   const [searchQuery, setSearchQuery] = useState('');
