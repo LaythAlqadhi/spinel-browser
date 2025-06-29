@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dimensions } from 'react-native';
-import { useSettingsStore } from '@/store/browserStore';
+import { useSettings } from '@/contexts/BrowserContext';
 import { View, Text, ScrollView } from 'tamagui';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -22,7 +22,7 @@ export default function DeviceEmulationContainer({
   emulatedIsRotated,
   isActive,
 }: DeviceEmulationContainerProps) {
-  const { theme } = useSettingsStore();
+  const { theme } = useSettings();
 
   if (!isActive) return <>{children}</>;
 

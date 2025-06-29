@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from 'tamagui';
 import { ZoomIn, ZoomOut, RotateCcw, X } from 'lucide-react-native';
-import { useTabsStore } from '@/store/browserStore';
+import { useTabs } from '@/contexts/BrowserContext';
 import { useToastController } from '@tamagui/toast';
 import {
   Sheet,
@@ -20,7 +20,7 @@ interface ZoomSheetProps {
 
 export default function ZoomSheet({ visible, onClose }: ZoomSheetProps) {
   const { color } = useTheme();
-  const { tabs, activeTabId, setTabZoom } = useTabsStore();
+  const { tabs, activeTabId, setTabZoom } = useTabs();
   const toast = useToastController();
 
   const activeTab = tabs.find(tab => tab.id === activeTabId);

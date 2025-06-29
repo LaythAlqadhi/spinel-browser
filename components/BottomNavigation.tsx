@@ -12,7 +12,7 @@ import {
   SquareStack,
   Shield,
 } from 'lucide-react-native';
-import { useTabsStore, useSettingsStore } from '@/store/browserStore';
+import { useTabs, useSettings, useBrowserContext } from '@/contexts/BrowserContext';
 import { 
   XStack, 
   Text, 
@@ -34,8 +34,9 @@ export default function BottomNavigation({
   showHomepage 
 }: BottomNavigationProps) {
   const { color, background } = useTheme()
-  const { tabs, activeTabId, isPrivateMode } = useTabsStore();
-  const { theme } = useSettingsStore();
+  const { tabs, activeTabId, isPrivateMode } = useTabs();
+  const { theme } = useSettings();
+  const { state } = useBrowserContext();
 
   const activeTab = tabs.find(tab => tab.id === activeTabId);
 

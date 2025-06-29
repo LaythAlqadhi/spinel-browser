@@ -8,7 +8,7 @@ import { useFonts } from 'expo-font';
 import { SplashScreen } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
-import { useSettingsStore } from '@/store/browserStore';
+import { BrowserProvider, useSettings } from '@/contexts/BrowserContext';
 import { tamaguiConfig } from '../tamagui.config';
 import { YStack } from 'tamagui';
 
@@ -61,11 +61,29 @@ const CurrentToast = () => {
   );
 };
 
+// Inner component that has access to the theme context
+function AppContent() {
+  const { theme } = useSettings();
+  
+  return (
+    <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>
+      <ToastProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+        <ToastViewport top="$10" left="$4" right="$4" />
+        <CurrentToast />
+      </ToastProvider>
+    </TamaguiProvider>
+  );
+}
+
 export default function RootLayout() {
   useFrameworkReady();
   
   const colorScheme = useColorScheme();
-  const { theme } = useSettingsStore();
 
   // Load Inter fonts
   const [fontsLoaded, fontError] = useFonts({
@@ -97,17 +115,9 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>
-        <ToastProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
-          <ToastViewport top="$10" left="$4" right="$4" />
-          <CurrentToast />
-        </ToastProvider>
-      </TamaguiProvider>
+      <BrowserProvider>
+        <AppContent />
+      </BrowserProvider>
     </SafeAreaProvider>
   );
 }

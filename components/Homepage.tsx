@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useTheme } from 'tamagui';
 import { TextInput, Dimensions } from 'react-native';
 import { Search, Clock, Bookmark, TrendingUp, Globe } from 'lucide-react-native';
-import { useHistoryStore, useBookmarksStore } from '@/store/browserStore';
+import { useBrowserContext } from '@/contexts/BrowserContext';
 import { 
   YStack, 
   XStack, 
@@ -22,8 +22,8 @@ interface HomepageProps {
 
 export default function Homepage({ onSearch }: HomepageProps) {
   const { color } = useTheme();
-  const { history } = useHistoryStore();
-  const { bookmarks } = useBookmarksStore();
+  const { state } = useBrowserContext();
+  const { theme, history, bookmarks } = state;
   const [searchQuery, setSearchQuery] = useState('');
   const inputRef = useRef<TextInput>(null);
 
