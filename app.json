@@ -15,7 +15,7 @@
       "dark": {
         "image": "./assets/images/icon.png",
         "backgroundColor": "#000000"
-      }
+      },
     },
     "ios": {
       "supportsTablet": true,
@@ -30,7 +30,7 @@
     },
     "web": {
       "bundler": "metro",
-      "output": "static",
+      "output": "single",
       "favicon": "./assets/images/icon.png"
     },
     "plugins": ["expo-router", "expo-font", "expo-web-browser"],
