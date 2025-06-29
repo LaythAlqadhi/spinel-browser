@@ -747,7 +747,7 @@ export default function BrowserWebView({
           >
             <WebView
               ref={webViewRef}
-              incognito={false}
+              incognito={tab.isPrivate}
               source={{ uri: tab.url }}
               userAgent={getUserAgent()}
               onNavigationStateChange={handleNavigationStateChange}

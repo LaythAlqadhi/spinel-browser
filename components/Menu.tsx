@@ -16,7 +16,6 @@ import {
 } from 'lucide-react-native';
 import { useTabs, useSettings, useBookmarks, useBrowserContext } from '@/contexts/BrowserContext';
 import { useToastController } from '@tamagui/toast';
-import ZoomSheet from './ZoomSheet';
 import { 
   Sheet, 
   YStack, 
@@ -31,18 +30,14 @@ interface MenuProps {
   visible: boolean;
   onClose: () => void;
   onDeviceEmulationToggle?: (active: boolean) => void;
-  onBookmarksOpen?: () => void;
-  onHistoryOpen?: () => void;
-  onSettingsOpen?: () => void;
+  onZoomOpen?: () => void;
 }
 
 export default function Menu({ 
   visible, 
   onClose, 
   onDeviceEmulationToggle,
-  onBookmarksOpen,
-  onHistoryOpen,
-  onSettingsOpen
+  onZoomOpen
 }: MenuProps) {
   const { color } = useTheme();
   const { tabs, activeTabId, createTab, isPrivateMode, toggleDesktopMode } = useTabs();
@@ -51,7 +46,6 @@ export default function Menu({
   const { state } = useBrowserContext();
   const toast = useToastController();
   const [erudaEnabled, setErudaEnabled] = useState(false);
-  const [showZoomSheet, setShowZoomSheet] = useState(false);
 
   const activeTab = tabs.find(tab => tab.id === activeTabId);
 
@@ -116,7 +110,7 @@ export default function Menu({
       return;
     }
 
-    setShowZoomSheet(true);
+    onZoomOpen?.();
     onClose();
   };
 
@@ -215,21 +209,6 @@ export default function Menu({
     onClose();
   };
 
-  const handleBookmarks = () => {
-    onBookmarksOpen?.();
-    onClose();
-  };
-
-  const handleHistory = () => {
-    onHistoryOpen?.();
-    onClose();
-  };
-
-  const handleSettings = () => {
-    onSettingsOpen?.();
-    onClose();
-  };
-
   const getCurrentZoomLevel = () => {
     return activeTab?.zoomLevel || 100;
   };
@@ -253,18 +232,6 @@ export default function Menu({
       subtitle: 'Bookmark current page',
       onPress: handleAddBookmark,
       disabled: !activeTab?.url || activeTab.url === 'about:blank',
-    },
-    {
-      icon: <BookOpen size={24} color={color.val} />,
-      title: 'Bookmarks',
-      subtitle: `${state.bookmarks.length} saved bookmarks`,
-      onPress: handleBookmarks,
-    },
-    {
-      icon: <History size={24} color={color.val} />,
-      title: 'History',
-      subtitle: `${state.history.length} visited pages`,
-      onPress: handleHistory,
     },
     {
       icon: <ZoomIn size={24} color={color.val} />,
@@ -296,102 +263,88 @@ export default function Menu({
       onPress: handleDevTools,
       disabled: !activeTab?.url || activeTab.url === 'about:blank',
     },
-    {
-      icon: <Settings size={24} color={color.val} />,
-      title: 'Settings',
-      subtitle: 'Browser preferences and options',
-      onPress: handleSettings,
-    },
   ];
 
   return (
-    <>
-      <Sheet
-        modal
-        open={visible}
-        onOpenChange={onClose}
-        dismissOnSnapToBottom
-      >
-        <Sheet.Overlay />
-        <Sheet.Handle />
-        
-        <Sheet.Frame>
-          {/* Header */}
-          <XStack
-            justifyContent="space-between"
-            alignItems="center"
-            paddingHorizontal="$4"
-            paddingVertical="$4"
-            borderBottomWidth={1}
-            borderBottomColor="$borderColor"
-          >
-            <Text fontSize="$6" fontWeight="600" color="$color">
-              Browser Menu
-            </Text>
-            <Button
-              size="$3"
-              circular
-              icon={<X size={24} />}
-              onPress={onClose}
-              backgroundColor="transparent"
-            />
-          </XStack>
+    <Sheet
+      modal
+      open={visible}
+      onOpenChange={onClose}
+      dismissOnSnapToBottom
+    >
+      <Sheet.Overlay />
+      <Sheet.Handle />
+      
+      <Sheet.Frame>
+        {/* Header */}
+        <XStack
+          justifyContent="space-between"
+          alignItems="center"
+          paddingHorizontal="$4"
+          paddingVertical="$4"
+          borderBottomWidth={1}
+          borderBottomColor="$borderColor"
+        >
+          <Text fontSize="$6" fontWeight="600" color="$color">
+            Browser Menu
+          </Text>
+          <Button
+            size="$3"
+            circular
+            icon={<X size={24} />}
+            onPress={onClose}
+            backgroundColor="transparent"
+          />
+        </XStack>
 
-          {/* Menu Items */}
-          <Sheet.ScrollView showsVerticalScrollIndicator={false}>
-            <YStack>
-              {menuItems.map((item, index) => (
-                <View key={index}>
-                  <Button
-                    backgroundColor="$gray2"
-                    borderRadius="$0"
-                    paddingHorizontal="$4"
-                    paddingVertical="$3"
-                    height="auto"
-                    justifyContent="flex-start"
-                    onPress={item.onPress}
-                    disabled={item.disabled}
-                  >
-                    <XStack alignItems="center" flex={1}>
-                      <View width={40} alignItems="center" marginRight="$4" opacity={item.disabled ? 0.7 : 1}>
-                        {item.icon}
-                      </View>
-                      <YStack flex={1}>
-                        <Text
-                          fontSize="$4"
-                          fontWeight="500"
-                          color={item.disabled ? '$gray10' : '$color'}
-                          marginBottom="$1"
-                          textAlign="left"
-                        >
-                          {item.title}
-                        </Text>
-                        <Text
-                          fontSize="$3"
-                          color="$gray10"
-                          numberOfLines={1}
-                          textAlign="left"
-                        >
-                          {item.subtitle}
-                        </Text>
-                      </YStack>
-                    </XStack>
-                  </Button>
-                  {index < menuItems.length - 1 && (
-                    <Separator marginHorizontal="$4" />
-                  )}
-                </View>
-              ))}
-            </YStack>
-          </Sheet.ScrollView>
-        </Sheet.Frame>
-      </Sheet>
-
-      {/* Zoom Sheet */}
-      <ZoomSheet
-        visible={showZoomSheet}
-        onClose={() => setShowZoomSheet(false)}
-      />
-    </>
+        {/* Menu Items */}
+        <Sheet.ScrollView showsVerticalScrollIndicator={false}>
+          <YStack>
+            {menuItems.map((item, index) => (
+              <View key={index}>
+                <Button
+                  backgroundColor="$gray2"
+                  borderRadius="$0"
+                  paddingHorizontal="$4"
+                  paddingVertical="$3"
+                  height="auto"
+                  justifyContent="flex-start"
+                  onPress={item.onPress}
+                  disabled={item.disabled}
+                >
+                  <XStack alignItems="center" flex={1}>
+                    <View width={40} alignItems="center" marginRight="$4" opacity={item.disabled ? 0.7 : 1}>
+                      {item.icon}
+                    </View>
+                    <YStack flex={1}>
+                      <Text
+                        fontSize="$4"
+                        fontWeight="500"
+                        color={item.disabled ? '$gray10' : '$color'}
+                        marginBottom="$1"
+                        textAlign="left"
+                      >
+                        {item.title}
+                      </Text>
+                      <Text
+                        fontSize="$3"
+                        color="$gray10"
+                        numberOfLines={1}
+                        textAlign="left"
+                      >
+                        {item.subtitle}
+                      </Text>
+                    </YStack>
+                  </XStack>
+                </Button>
+                {index < menuItems.length - 1 && (
+                  <Separator marginHorizontal="$4" />
+                )}
+              </View>
+            ))}
+          </YStack>
+        </Sheet.ScrollView>
+      </Sheet.Frame>
+    </Sheet>
   );
 }
