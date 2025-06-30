@@ -19,7 +19,7 @@ export function useBrowserBookmarks() {
   const dispatch = useAppDispatch();
   
   const bookmarks = useAppSelector(selectBookmarks) ?? [];
-  const bookmarkFolders = useAppSelector(selectBookmarkFolders) ?? [];
+  const folders = useAppSelector(selectBookmarkFolders) ?? [];
 
   const handleAddBookmark = useCallback((url: string, title: string, folderId?: string) => {
     dispatch(addBookmark({ url, title, folderId }));
@@ -62,11 +62,11 @@ export function useBrowserBookmarks() {
   }, [bookmarks]);
 
   return {
-    // State
+    // State - Fixed: Use consistent naming
     bookmarks,
-    bookmarkFolders,
+    bookmarkFolders: folders,
     
-    // Actions - Fixed: Use the handle functions that properly dispatch actions
+    // Actions - Use the handle functions that properly dispatch actions
     addBookmark: handleAddBookmark,
     removeBookmark: handleRemoveBookmark,
     createFolder: handleCreateFolder,

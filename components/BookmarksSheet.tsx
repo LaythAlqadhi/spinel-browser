@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useTheme } from 'tamagui';
-import { FlatList } from 'react-native';
 import { Bookmark, FolderPlus, Search, Trash2, Folder, Globe, X } from 'lucide-react-native';
 import { useBrowserBookmarks } from '@/hooks/useBrowserBookmarks';
 import { useBrowserTabs } from '@/hooks/useBrowserTabs';
@@ -109,38 +108,6 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
       });
     }
   };
-
-  const renderFolder = ({ item }: { item: any }) => (
-    <Button
-      backgroundColor={selectedFolderId === item.id ? '$gray4' : '$gray2'}
-      height="auto"
-      paddingVertical="$3"
-      marginHorizontal="$2"
-      minWidth={120}
-      onPress={() => setSelectedFolderId(selectedFolderId === item.id ? null : item.id)}
-      pressStyle={{ backgroundColor: '$gray3' }}
-    >
-      <XStack alignItems="center" space="$2" flex={1}>
-        <Folder size={20} color={color.val} />
-        <Text fontSize="$4" fontWeight="500" flex={1}>
-          {item.name}
-        </Text>
-        <Text fontSize="$3" color="$gray10">
-          {(bookmarks || []).filter(b => b.folderId === item.id).length}
-        </Text>
-        <Button
-          size="$2"
-          circular
-          backgroundColor="transparent"
-          onPress={(e) => {
-            e.stopPropagation();
-            handleDeleteFolder(item.id);
-          }}
-          icon={<Trash2 size={16} color="#FF3B30" />}
-        />
-      </XStack>
-    </Button>
-  );
 
   const renderBookmark = ({ item }: { item: any }) => (
     <Button
