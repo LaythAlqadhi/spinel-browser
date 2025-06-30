@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useTheme } from 'tamagui';
 import { SectionList } from 'react-native';
 import { History, Search, Trash2, Globe, Calendar, X } from 'lucide-react-native';
-import { useHistory, useTabs, useSettings } from '@/contexts/BrowserContext';
+import { useBrowserHistory } from '@/hooks/useBrowserHistory';
+import { useBrowserTabs } from '@/hooks/useBrowserTabs';
+import { useBrowserSettings } from '@/hooks/useBrowserSettings';
 import { useToastController } from '@tamagui/toast';
 import {
   Sheet,
@@ -29,9 +31,10 @@ export default function HistorySheet({ visible, onClose }: HistorySheetProps) {
   const {
     history,
     clearHistory,
-  } = useHistory();
-  const { tabs, activeTabId, updateTab } = useTabs();
-  const { theme } = useSettings();
+    groupHistoryByDate,
+  } = useBrowserHistory();
+  const { tabs, activeTabId, updateTab } = useBrowserTabs();
+  const { theme } = useBrowserSettings();
   const toast = useToastController();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,33 +47,7 @@ export default function HistorySheet({ visible, onClose }: HistorySheetProps) {
   );
 
   const groupedHistory = (): HistorySection[] => {
-    const grouped: { [key: string]: any[] } = {};
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    filteredHistory.forEach(entry => {
-      const entryDate = new Date(entry.visitedAt);
-      let dateKey: string;
-
-      if (entryDate.toDateString() === today.toDateString()) {
-        dateKey = 'Today';
-      } else if (entryDate.toDateString() === yesterday.toDateString()) {
-        dateKey = 'Yesterday';
-      } else {
-        dateKey = entryDate.toLocaleDateString();
-      }
-
-      if (!grouped[dateKey]) {
-        grouped[dateKey] = [];
-      }
-      grouped[dateKey].push(entry);
-    });
-
-    return Object.entries(grouped).map(([title, data]) => ({
-      title,
-      data: data.sort((a, b) => new Date(b.visitedAt).getTime() - new Date(a.visitedAt).getTime()),
-    }));
+    return groupHistoryByDate(filteredHistory);
   };
 
   const handleHistoryPress = (entry: any) => {

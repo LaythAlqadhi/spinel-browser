@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { useTheme } from 'tamagui';
 import { Globe } from 'lucide-react-native';
-import { HistoryEntry } from '@/contexts/BrowserContext';
+import { HistoryEntry } from '@/store/slices/historySlice';
 import { 
   XStack, 
   YStack, 

@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { useTheme } from 'tamagui';
 import { Globe, Trash2 } from 'lucide-react-native';
-import { Bookmark } from '@/contexts/BrowserContext';
+import { Bookmark } from '@/store/slices/bookmarksSlice';
 import { 
   XStack, 
   YStack, 

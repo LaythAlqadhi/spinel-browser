@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useTheme } from 'tamagui';
 import { FlatList } from 'react-native';
 import { Bookmark, FolderPlus, Search, Trash2, Folder, Globe, X } from 'lucide-react-native';
-import { useBookmarks, useTabs, useSettings } from '@/contexts/BrowserContext';
+import { useBrowserBookmarks } from '@/hooks/useBrowserBookmarks';
+import { useBrowserTabs } from '@/hooks/useBrowserTabs';
+import { useBrowserSettings } from '@/hooks/useBrowserSettings';
 import { useToastController } from '@tamagui/toast';
 import {
   Sheet,
@@ -25,13 +27,13 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
   const { color } = useTheme();
   const {
     bookmarks,
-    bookmarkFolders,
+    folders: bookmarkFolders,
     removeBookmark,
-    createBookmarkFolder,
-    deleteBookmarkFolder,
-  } = useBookmarks();
-  const { tabs, activeTabId, updateTab } = useTabs();
-  const { theme } = useSettings();
+    createFolder,
+    deleteFolder,
+  } = useBrowserBookmarks();
+  const { tabs, activeTabId, updateTab } = useBrowserTabs();
+  const { theme } = useBrowserSettings();
   const toast = useToastController();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -77,7 +79,7 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
 
   const handleCreateFolder = () => {
     if (newFolderName.trim()) {
-      createBookmarkFolder(newFolderName.trim());
+      createFolder(newFolderName.trim());
       setNewFolderName('');
       setShowNewFolderModal(false);
       toast.show('Folder Created', {
@@ -90,7 +92,7 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
     const folderBookmarks = bookmarks.filter(bookmark => bookmark.folderId === folderId);
     const folderName = bookmarkFolders.find(f => f.id === folderId)?.name || 'Unknown';
     
-    deleteBookmarkFolder(folderId);
+    deleteFolder(folderId);
     
     if (folderBookmarks.length > 0) {
       toast.show('Folder Deleted', {

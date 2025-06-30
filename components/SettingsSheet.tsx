@@ -11,7 +11,9 @@ import {
   X,
   ChevronDown,
 } from 'lucide-react-native';
-import { useSettings, useHistory, useBookmarks } from '@/contexts/BrowserContext';
+import { useBrowserSettings } from '@/hooks/useBrowserSettings';
+import { useBrowserHistory } from '@/hooks/useBrowserHistory';
+import { useBrowserBookmarks } from '@/hooks/useBrowserBookmarks';
 import { useToastController } from '@tamagui/toast';
 import { 
   Sheet, 
@@ -38,9 +40,9 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
     theme,
     updateSettings,
     setTheme,
-  } = useSettings();
-  const { clearHistory } = useHistory();
-  const { bookmarks } = useBookmarks();
+  } = useBrowserSettings();
+  const { clearHistory } = useBrowserHistory();
+  const { bookmarks } = useBrowserBookmarks();
   const toast = useToastController();
 
   const handleThemeChange = (isDark: boolean) => {

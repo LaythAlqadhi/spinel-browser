@@ -2,7 +2,10 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Platform, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ViewShot, { captureRef } from 'react-native-view-shot';
-import { useBrowserContext, Tab } from '@/contexts/BrowserContext';
+import { useBrowserTabs } from '@/hooks/useBrowserTabs';
+import { useBrowserHistory } from '@/hooks/useBrowserHistory';
+import { useBrowserSettings } from '@/hooks/useBrowserSettings';
+import { Tab } from '@/store/slices/tabsSlice';
 import Homepage from './Homepage';
 import { View } from 'tamagui';
 
@@ -22,8 +25,9 @@ export default function BrowserWebView({
   const webViewRef = useRef<WebView>(null);
   const viewShotRef = useRef<ViewShot>(null);
   const mountedRef = useRef<boolean>(false);
-  const { updateTab, addHistoryEntry, createTab } = useBrowserContext();
-  const { settings, theme } = useBrowserContext().state;
+  const { updateTab, addHistoryEntry, createTab } = useBrowserTabs();
+  const { addEntry } = useBrowserHistory();
+  const { settings, theme } = useBrowserSettings();
   const [showHomepage, setShowHomepage] = useState(false);
   const [webViewBackgroundColor, setWebViewBackgroundColor] = useState('transparent');
   const [navigationState, setNavigationState] = useState({
@@ -274,7 +278,7 @@ export default function BrowserWebView({
     if (!navState.loading && navState.url && navState.url !== 'about:blank') {
       // Use the actual page title if available, otherwise use the display title
       const historyTitle = (navState.title && navState.title !== 'Loading...') ? navState.title : displayTitle;
-      addHistoryEntry(navState.url, historyTitle, favicon);
+      addEntry(navState.url, historyTitle, favicon);
     }
 
     const shouldHideHomepage = navState.url !== 'about:blank';
