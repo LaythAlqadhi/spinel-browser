@@ -26,13 +26,13 @@ interface BookmarksSheetProps {
 export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps) {
   const { color } = useTheme();
   const {
-    bookmarks,
-    folders: bookmarkFolders,
+    bookmarks = [],
+    folders: bookmarkFolders = [],
     removeBookmark,
     createFolder,
     deleteFolder,
   } = useBrowserBookmarks();
-  const { tabs, activeTabId, updateTab } = useBrowserTabs();
+  const { tabs = [], activeTabId, updateTab } = useBrowserTabs();
   const { theme } = useBrowserSettings();
   const toast = useToastController();
 
@@ -42,7 +42,7 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
   const [newFolderName, setNewFolderName] = useState('');
 
   // Filter bookmarks based on search query and folder selection
-  const filteredBookmarks = bookmarks.filter(bookmark => {
+  const filteredBookmarks = (bookmarks || []).filter(bookmark => {
     const matchesSearch = bookmark.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           bookmark.url.toLowerCase().includes(searchQuery.toLowerCase());
     
@@ -56,7 +56,7 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
   const handleBookmarkPress = (bookmark: any) => {
     let targetTabId = activeTabId;
     
-    if (!targetTabId || tabs.length === 0) {
+    if (!targetTabId || (tabs || []).length === 0) {
       onClose();
       return;
     }
@@ -89,8 +89,8 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
   };
 
   const handleDeleteFolder = (folderId: string) => {
-    const folderBookmarks = bookmarks.filter(bookmark => bookmark.folderId === folderId);
-    const folderName = bookmarkFolders.find(f => f.id === folderId)?.name || 'Unknown';
+    const folderBookmarks = (bookmarks || []).filter(bookmark => bookmark.folderId === folderId);
+    const folderName = (bookmarkFolders || []).find(f => f.id === folderId)?.name || 'Unknown';
     
     deleteFolder(folderId);
     
@@ -121,7 +121,7 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
           {item.name}
         </Text>
         <Text fontSize="$3" color="$gray10">
-          {bookmarks.filter(b => b.folderId === item.id).length}
+          {(bookmarks || []).filter(b => b.folderId === item.id).length}
         </Text>
         <Button
           size="$2"
@@ -166,7 +166,7 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
     </Button>
   );
 
-  const rootBookmarksCount = bookmarks.filter(bookmark => !bookmark.folderId).length;
+  const rootBookmarksCount = (bookmarks || []).filter(bookmark => !bookmark.folderId).length;
 
   return (
     <Sheet
@@ -237,13 +237,13 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
         </XStack>
 
         {/* Folders */}
-        {bookmarkFolders.length > 0 && (
+        {(bookmarkFolders || []).length > 0 && (
           <YStack marginBottom="$4">
             <Text fontSize="$6" fontWeight="600" paddingHorizontal="$5" marginBottom="$3">
               Folders
             </Text>
             <FlatList
-              data={bookmarkFolders}
+              data={bookmarkFolders || []}
               renderItem={renderFolder}
               keyExtractor={item => item.id}
               horizontal
@@ -257,7 +257,7 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
           {selectedFolderId ? (
             <XStack justifyContent="space-between" alignItems="center" flex={1}>
               <Text fontSize="$3" color="$gray10">
-                In folder: {bookmarkFolders.find(f => f.id === selectedFolderId)?.name}
+                In folder: {(bookmarkFolders || []).find(f => f.id === selectedFolderId)?.name}
               </Text>
               <Button
                 size="$2"
