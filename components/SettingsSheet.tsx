@@ -14,7 +14,6 @@ import {
 import { useBrowserSettings } from '@/hooks/useBrowserSettings';
 import { useBrowserHistory } from '@/hooks/useBrowserHistory';
 import { useBrowserBookmarks } from '@/hooks/useBrowserBookmarks';
-import { useBrowserTabs } from '@/hooks/useBrowserTabs';
 import { useToastController } from '@tamagui/toast';
 import { 
   Sheet, 
@@ -41,18 +40,15 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
     theme,
     updateSettings,
     setTheme,
-    resetSettings,
   } = useBrowserSettings();
   const { clearHistory } = useBrowserHistory();
   const { bookmarks } = useBrowserBookmarks();
-  const { tabs, createTab } = useBrowserTabs();
   const toast = useToastController();
 
   const handleThemeChange = (isDark: boolean) => {
-    const newTheme = isDark ? 'dark' : 'light';
-    setTheme(newTheme);
+    setTheme(isDark ? 'dark' : 'light');
     toast.show('Theme Updated', {
-      message: `Switched to ${newTheme} mode`,
+      message: `Switched to ${isDark ? 'dark' : 'light'} mode`,
     });
   };
 
@@ -64,17 +60,15 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
   };
 
   const handleClearAllData = () => {
-    // Clear all browsing data
     clearHistory();
-    
-    // Reset settings to defaults
-    resetSettings();
-    
-    // Create a new blank tab if no tabs exist after clearing
-    if (tabs.length === 0) {
-      createTab();
-    }
-    
+    updateSettings({
+      theme: 'light',
+      defaultSearchEngine: 'google',
+      clearHistoryOnExit: false,
+      showSuggestions: true,
+      blockPopups: true,
+    });
+    setTheme('light');
     toast.show('All Data Cleared', {
       message: 'All browsing history and settings have been reset to defaults.',
     });
