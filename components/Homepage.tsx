@@ -5,6 +5,7 @@ import { Search, Clock, Bookmark, TrendingUp, Globe } from 'lucide-react-native'
 import { useBrowserSettings } from '@/hooks/useBrowserSettings';
 import { useBrowserHistory } from '@/hooks/useBrowserHistory';
 import { useBrowserBookmarks } from '@/hooks/useBrowserBookmarks';
+import BoltBadge from '@/components/BoltBadge';
 import { 
   YStack, 
   XStack, 
@@ -68,6 +69,7 @@ export default function Homepage({ onSearch }: HomepageProps) {
       backgroundColor="$background"
       showsVerticalScrollIndicator={false}
     >
+      <BoltBadge />
       <YStack paddingHorizontal="$4" paddingTop="$15" paddingBottom="$10" space="$10">
         {/* App Icon Header */}
         <YStack alignItems="center" space="$4">
