@@ -272,44 +272,44 @@ export default function BrowserWebView({
   };
 
   const handleNavigationStateChange = (navState: any) => {
-    // Always use the current URL for title generation if no title is provided
-    const displayTitle = getDisplayTitle(navState.title, navState.url);
-    
-    setNavigationState({
-      canGoBack: navState.canGoBack,
-      canGoForward: navState.canGoForward,
-      loading: navState.loading,
-      url: navState.url,
-      title: displayTitle
-    });
+      // Always use the current URL for title generation if no title is provided
+      const displayTitle = getDisplayTitle(navState.title, navState.url);
 
-    const favicon = extractFavicon(navState.url);
+      setNavigationState({
+        canGoBack: navState.canGoBack,
+        canGoForward: navState.canGoForward,
+        loading: navState.loading,
+        url: navState.url,
+        title: displayTitle
+      });
 
-    updateTab(tab.id, {
-      url: navState.url,
-      title: displayTitle,
-      canGoBack: navState.canGoBack,
-      canGoForward: navState.canGoForward,
-      loading: navState.loading,
-      favicon: favicon,
-    });
+      const favicon = extractFavicon(navState.url);
 
-    // Only add to history when page is fully loaded and has content
-    if (!navState.loading && navState.url && navState.url !== 'about:blank') {
-      // Use the actual page title if available, otherwise use the display title
-      const historyTitle = (navState.title && navState.title !== 'Loading...') ? navState.title : displayTitle;
-      addEntry(navState.url, historyTitle, favicon);
-    }
+      updateTab(tab.id, {
+        url: navState.url,
+        title: displayTitle,
+        canGoBack: navState.canGoBack,
+        canGoForward: navState.canGoForward,
+        loading: navState.loading,
+        favicon: favicon,
+      });
 
-    const shouldHideHomepage = navState.url !== 'about:blank';
-    if (shouldHideHomepage && showHomepage) {
-      setShowHomepage(false);
-      if (isActive && onHomepageStateChange) {
-        onHomepageStateChange(false);
+      // Only add to history when page is fully loaded, has content, AND IS NOT A PRIVATE TAB
+      if (!navState.loading && navState.url && navState.url !== 'about:blank' && !tab.isPrivate) {
+        // Use the actual page title if available, otherwise use the display title
+        const historyTitle = (navState.title && navState.title !== 'Loading...') ? navState.title : displayTitle;
+        addEntry(navState.url, historyTitle, favicon);
       }
-    }
-  };
 
+      const shouldHideHomepage = navState.url !== 'about:blank';
+      if (shouldHideHomepage && showHomepage) {
+        setShowHomepage(false);
+        if (isActive && onHomepageStateChange) {
+          onHomepageStateChange(false);
+        }
+      }
+    };
+  
   const handleLoadProgress = (event: any) => {
     updateTab(tab.id, {
       progress: event.nativeEvent.progress,
