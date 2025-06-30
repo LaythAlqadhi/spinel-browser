@@ -28,7 +28,7 @@ export default function NavigationBar({ onTabPress, onNewTab }: NavigationBarPro
   const { activeTab, isPrivateMode } = useBrowserTabs();
   const { history } = useBrowserHistory();
   const { settings } = useBrowserSettings();
-  const { reload } = useWebViewNavigation();
+  const { reload, navigateToUrl } = useWebViewNavigation();
   const toast = useToastController();
   
   const [urlInput, setUrlInput] = useState('');
@@ -53,16 +53,13 @@ export default function NavigationBar({ onTabPress, onNewTab }: NavigationBarPro
   const handleUrlSubmit = useCallback(() => {
     if (!activeTab || !urlInput.trim()) return;
     
-    const webViewRef = (activeTab as any).webViewRef;
-    if (webViewRef) {
-      webViewRef.navigateToUrl(urlInput.trim());
-    }
+    navigateToUrl(urlInput.trim());
     
     setIsEditing(false);
     setUrlInput('');
     setSuggestions([]);
     inputRef.current?.blur();
-  }, [activeTab, urlInput]);
+  }, [activeTab, urlInput, navigateToUrl]);
 
   const handleUrlInputChange = useCallback((text: string) => {
     setUrlInput(text);
@@ -85,16 +82,13 @@ export default function NavigationBar({ onTabPress, onNewTab }: NavigationBarPro
   const handleSuggestionPress = useCallback((url: string) => {
     if (!activeTab) return;
     
-    const webViewRef = (activeTab as any).webViewRef;
-    if (webViewRef) {
-      webViewRef.navigateToUrl(url);
-    }
+    navigateToUrl(url);
     
     setIsEditing(false);
     setUrlInput('');
     setSuggestions([]);
     inputRef.current?.blur();
-  }, [activeTab]);
+  }, [activeTab, navigateToUrl]);
 
   const handleShare = useCallback(async () => {
     if (!activeTab || !activeTab.url) return;
