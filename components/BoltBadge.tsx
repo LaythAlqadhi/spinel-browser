@@ -13,7 +13,7 @@ export default function BoltBadge() {
                   uri: 'https://storage.bolt.army/white_circle_360x360.png',
                 }}
                 width={160}
-                height={32}
+                height={160}
                 resizeMode="contain"
               />
             </Anchor>
