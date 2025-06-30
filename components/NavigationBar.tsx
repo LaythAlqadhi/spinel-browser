@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useTheme } from 'tamagui';
 import { TextInput, Platform } from 'react-native';
-import { RotateCcw, Share, Lock, Shield, TriangleAlert as AlertTriangle, Search, MonitorSpeaker } from 'lucide-react-native';
+import { RotateCcw, Share, Lock, Shield, TriangleAlert as AlertTriangle, Search, MonitorSmartphone } from 'lucide-react-native';
 import { useBrowserContext } from '@/contexts/BrowserContext';
 import { useToastController } from '@tamagui/toast';
 import * as Sharing from 'expo-sharing';
@@ -213,7 +213,7 @@ export default function NavigationBar({ onTabPress, onNewTab }: NavigationBarPro
               <Shield size={16} color="$purple10" style={{ marginLeft: 4 }} />
             )}
             {activeTab?.desktopMode && (
-              <MonitorSpeaker size={16} color="#007AFF" style={{ marginLeft: 4 }} />
+              <MonitorSmartphone size={16} color={color.val} style={{ marginLeft: 4 }} />
             )}
             <Input
               ref={inputRef}

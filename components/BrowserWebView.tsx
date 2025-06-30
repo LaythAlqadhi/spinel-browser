@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Platform, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ViewShot, { captureRef } from 'react-native-view-shot';
-import { useTabsStore, useHistoryStore, useSettingsStore, Tab } from '@/stores/browserStore';
+import { useBrowserContext, Tab } from '@/contexts/BrowserContext';
 import Homepage from './Homepage';
 import { View } from 'tamagui';
 
@@ -22,9 +22,8 @@ export default function BrowserWebView({
   const webViewRef = useRef<WebView>(null);
   const viewShotRef = useRef<ViewShot>(null);
   const mountedRef = useRef<boolean>(false);
-  const { updateTab, createTab } = useTabsStore();
-  const { addHistoryEntry } = useHistoryStore();
-  const { settings, theme } = useSettingsStore();
+  const { updateTab, addHistoryEntry, createTab } = useBrowserContext();
+  const { settings, theme } = useBrowserContext().state;
   const [showHomepage, setShowHomepage] = useState(false);
   const [webViewBackgroundColor, setWebViewBackgroundColor] = useState('transparent');
   const [navigationState, setNavigationState] = useState({
@@ -130,15 +129,6 @@ export default function BrowserWebView({
     } catch {
       return url;
     }
-  };
-
-  const getUserAgent = () => {
-    if (tab.desktopMode) {
-      // Desktop user agent
-      return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-    }
-    // Default mobile user agent (let WebView use its default)
-    return undefined;
   };
 
   const applyZoom = (zoomLevel: number) => {
@@ -750,7 +740,7 @@ export default function BrowserWebView({
               ref={webViewRef}
               incognito={tab.isPrivate}
               source={{ uri: tab.url }}
-              userAgent={getUserAgent()}
+              contentMode={tab.desktopMode ? 'desktop' : 'mobile'}
               onNavigationStateChange={handleNavigationStateChange}
               onLoadProgress={handleLoadProgress}
               onLoadStart={handleLoadStart}
@@ -773,8 +763,8 @@ export default function BrowserWebView({
               startInLoadingState={true}
               scalesPageToFit={false}
               mixedContentMode="always"
-              thirdPartyCookiesEnabled={!tab.isPrivate}
-              domStorageEnabled={!tab.isPrivate}
+              thirdPartyCookiesEnabled={true}
+              domStorageEnabled={true}
               javaScriptEnabled={true}
               pullToRefreshEnabled={true}
               renderToHardwareTextureAndroid={true}
@@ -792,6 +782,7 @@ export default function BrowserWebView({
               onShouldStartLoadWithRequest={(request) => {
                 return true;
               }}
+              applicationNameForUserAgent='Spinel/1.0.0'
             />
           </ViewShot>
         )}

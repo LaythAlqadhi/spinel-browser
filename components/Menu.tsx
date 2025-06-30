@@ -91,7 +91,7 @@ export default function Menu({
 
     toggleDesktopMode(activeTab.id);
     
-    // Reload the page to apply the new user agent
+    // Reload the page to apply the new content mode
     const webViewRef = (activeTab as any).webViewRef;
     if (webViewRef) {
       setTimeout(() => {

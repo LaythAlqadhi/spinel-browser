@@ -12,7 +12,7 @@ import {
   SquareStack,
   Shield,
 } from 'lucide-react-native';
-import { useTabsStore, useSettingsStore } from '@/stores/browserStore';
+import { useTabs, useSettings, useBrowserContext } from '@/contexts/BrowserContext';
 import { 
   XStack, 
   Text, 
@@ -33,9 +33,10 @@ export default function BottomNavigation({
   onDrawerPress,
   showHomepage 
 }: BottomNavigationProps) {
-  const { color, background } = useTheme()
-  const { tabs, activeTabId, isPrivateMode } = useTabsStore();
-  const { theme } = useSettingsStore();
+  const { color } = useTheme()
+  const { tabs, activeTabId, isPrivateMode } = useTabs();
+  const { theme } = useSettings();
+  const { state } = useBrowserContext();
 
   const activeTab = tabs.find(tab => tab.id === activeTabId);
 
@@ -113,19 +114,19 @@ export default function BottomNavigation({
           {/* Tab count badge */}
           <View
             position="absolute"
-            top={-8}
-            right={-8}
-            backgroundColor={isPrivateMode ? "$purple8" : color.val}
+            top={-12}
+            right={-12}
+            backgroundColor={isPrivateMode ? "$purple8" : "$green8"}
             borderRadius="$10"
-            minWidth={18}
-            height={18}
+            minWidth={24}
+            height={24}
             alignItems="center"
             justifyContent="center"
             paddingHorizontal="$1"
           >
             <Text 
               fontSize="$1" 
-              color={isPrivateMode ? "white" : background.val}
+              color="white" 
               fontWeight="600"
               lineHeight={18}
             >
@@ -135,7 +136,7 @@ export default function BottomNavigation({
         </View>
       </Button>
 
-      {/* Menu/Drawer */}
+      {/* Menu */}
       <Button
         chromeless
         circular
