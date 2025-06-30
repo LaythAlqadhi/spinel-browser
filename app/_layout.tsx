@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useColorScheme } from 'react-native';
+import { useColorScheme, Platform } from 'react-native';
 import { TamaguiProvider } from 'tamagui';
 import { ToastProvider, ToastViewport, Toast, useToastState } from '@tamagui/toast';
 import { useFonts } from 'expo-font';
