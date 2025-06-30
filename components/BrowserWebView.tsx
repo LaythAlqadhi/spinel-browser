@@ -26,7 +26,7 @@ export default function BrowserWebView({
   const viewShotRef = useRef<ViewShot>(null);
   const mountedRef = useRef<boolean>(false);
   const { updateTab, addHistoryEntry, createTab } = useBrowserTabs();
-  const { addEntry } = useBrowserHistory();
+  const { addHistoryEntry: addEntry } = useBrowserHistory();
   const { settings, theme } = useBrowserSettings();
   const [showHomepage, setShowHomepage] = useState(false);
   const [webViewBackgroundColor, setWebViewBackgroundColor] = useState('transparent');
