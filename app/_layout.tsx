@@ -75,7 +75,7 @@ function AppContent() {
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
-        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+        <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
         <ToastViewport top="$10" left="$4" right="$4" />
         <CurrentToast />
       </ToastProvider>
