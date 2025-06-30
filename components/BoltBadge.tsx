@@ -18,8 +18,8 @@ export default function BoltBadge() {
       >
         <Image
           source={{ uri: imageUri }}
-          width={100}
-          height={100}
+          width={{ xs: 100, md: 200 }}
+          height={{ xs: 100, md: 200 }}
           resizeMode="contain"
         />
       </Anchor>
