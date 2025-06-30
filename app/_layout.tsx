@@ -65,10 +65,10 @@ const CurrentToast = () => {
 
 // Inner component that has access to the Redux store
 function AppContent() {
-  const colorScheme = useColorScheme();
+  const { theme } = useBrowserSettings();
   
   return (
-    <TamaguiProvider config={tamaguiConfig} defaultTheme={colorScheme || 'dark'}>
+    <TamaguiProvider config={tamaguiConfig} defaultTheme={theme || 'dark'}>
       <ToastProvider>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" options={{ headerShown: false }} />
