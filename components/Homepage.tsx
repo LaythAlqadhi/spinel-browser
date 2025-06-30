@@ -69,7 +69,6 @@ export default function Homepage({ onSearch }: HomepageProps) {
       backgroundColor="$background"
       showsVerticalScrollIndicator={false}
     >
-      <BoltBadge />
       <YStack paddingHorizontal="$4" paddingTop="$15" paddingBottom="$10" space="$10">
         {/* App Icon Header */}
         <YStack alignItems="center" space="$4">
@@ -79,6 +78,7 @@ export default function Homepage({ onSearch }: HomepageProps) {
             height={120}
             borderRadius="$6"
           />
+          <BoltBadge />
         </YStack>
 
         {/* Search Section */}
