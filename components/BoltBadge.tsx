@@ -1,6 +1,4 @@
-import { Anchor, Image, Stack, YStack } from 'tamagui'
-import { useEffect, useState } from 'react'
-import { AnimatePresence } from 'tamagui'
+import { Anchor, Image, Stack } from 'tamagui'
 
 export default function BoltBadge() {
   return (
@@ -14,7 +12,7 @@ export default function BoltBadge() {
                 source={{
                   uri: 'https://storage.bolt.army/logotext_poweredby_360w.png',
                 }}
-                width={360}
+                width={160}
                 height={32}
               />
             </Anchor>
