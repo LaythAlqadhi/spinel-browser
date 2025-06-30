@@ -1,27 +1,45 @@
 import { useCallback, useMemo } from 'react';
-import { useBrowserContext, Bookmark, BookmarkFolder } from '@/contexts/BrowserContext';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+  selectBookmarks,
+  selectBookmarkFolders,
+  selectBookmarksByFolder,
+  selectIsBookmarked,
+} from '@/store/selectors';
+import {
+  addBookmark,
+  removeBookmark,
+  createFolder,
+  deleteFolder,
+  updateBookmark,
+} from '@/store/slices/bookmarksSlice';
+import { Bookmark } from '@/store/slices/bookmarksSlice';
 
 export function useBrowserBookmarks() {
-  const { state, addBookmark, removeBookmark, createBookmarkFolder, deleteBookmarkFolder } = useBrowserContext();
-
-  const bookmarks = useMemo(() => state.bookmarks, [state.bookmarks]);
-  const bookmarkFolders = useMemo(() => state.bookmarkFolders, [state.bookmarkFolders]);
+  const dispatch = useAppDispatch();
+  
+  const bookmarks = useAppSelector(selectBookmarks);
+  const bookmarkFolders = useAppSelector(selectBookmarkFolders);
 
   const handleAddBookmark = useCallback((url: string, title: string, folderId?: string) => {
-    addBookmark(url, title, folderId);
-  }, [addBookmark]);
+    dispatch(addBookmark({ url, title, folderId }));
+  }, [dispatch]);
 
   const handleRemoveBookmark = useCallback((bookmarkId: string) => {
-    removeBookmark(bookmarkId);
-  }, [removeBookmark]);
+    dispatch(removeBookmark({ bookmarkId }));
+  }, [dispatch]);
 
   const handleCreateFolder = useCallback((name: string) => {
-    createBookmarkFolder(name);
-  }, [createBookmarkFolder]);
+    dispatch(createFolder({ name }));
+  }, [dispatch]);
 
   const handleDeleteFolder = useCallback((folderId: string) => {
-    deleteBookmarkFolder(folderId);
-  }, [deleteBookmarkFolder]);
+    dispatch(deleteFolder({ folderId }));
+  }, [dispatch]);
+
+  const handleUpdateBookmark = useCallback((bookmarkId: string, updates: Partial<Bookmark>) => {
+    dispatch(updateBookmark({ bookmarkId, updates }));
+  }, [dispatch]);
 
   const getBookmarksByFolder = useCallback((folderId?: string) => {
     return bookmarks.filter(bookmark => bookmark.folderId === folderId);
@@ -53,6 +71,7 @@ export function useBrowserBookmarks() {
     removeBookmark: handleRemoveBookmark,
     createFolder: handleCreateFolder,
     deleteFolder: handleDeleteFolder,
+    updateBookmark: handleUpdateBookmark,
     
     // Computed
     getBookmarksByFolder,

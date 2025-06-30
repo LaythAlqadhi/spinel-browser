@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTabs, useSettings, useBrowserContext } from '@/contexts/BrowserContext';
+import { useBrowserTabs } from '@/hooks/useBrowserTabs';
+import { useBrowserSettings } from '@/hooks/useBrowserSettings';
 import BrowserWebView from '@/components/BrowserWebView';
 import NavigationBar from '@/components/NavigationBar';
 import TabManager from '@/components/TabManager';
@@ -12,12 +13,8 @@ import HistorySheet from '@/components/HistorySheet';
 import SettingsSheet from '@/components/SettingsSheet';
 import DeviceEmulationContainer from '@/components/DeviceEmulationContainer';
 import DeviceEmulationToolbar from '@/components/DeviceEmulationToolbar';
-import { Plus } from 'lucide-react-native';
 import { 
   YStack, 
-  XStack, 
-  Text, 
-  Button,
   View
 } from 'tamagui';
 
@@ -32,10 +29,10 @@ interface EmulationSettings {
 }
 
 export default function BrowserScreen() {
-  const { tabs, activeTabId, createTab } = useTabs();
-  const { theme } = useSettings();
-  const { initializeStore } = useBrowserContext();
+  const { tabs, activeTabId, createTab, initializeTabs } = useBrowserTabs();
+  const { theme } = useBrowserSettings();
   const insets = useSafeAreaInsets();
+  
   const [showTabManager, setShowTabManager] = useState(false);
   const [showHomepage, setShowHomepage] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -52,8 +49,8 @@ export default function BrowserScreen() {
   });
 
   useEffect(() => {
-    initializeStore();
-  }, []);
+    initializeTabs();
+  }, [initializeTabs]);
 
   useEffect(() => {
     const activeTab = tabs.find(tab => tab.id === activeTabId);

@@ -7,8 +7,10 @@ import { ToastProvider, ToastViewport, Toast, useToastState } from '@tamagui/toa
 import { useFonts } from 'expo-font';
 import { SplashScreen } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
-import { BrowserProvider, useSettings } from '@/contexts/BrowserContext';
+import { store, persistor } from '@/store';
 import { tamaguiConfig } from '../tamagui.config';
 import { YStack } from 'tamagui';
 
@@ -61,18 +63,18 @@ const CurrentToast = () => {
   );
 };
 
-// Inner component that has access to the theme context
+// Inner component that has access to the Redux store
 function AppContent() {
-  const { theme } = useSettings();
+  const colorScheme = useColorScheme();
   
   return (
-    <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>
+    <TamaguiProvider config={tamaguiConfig} defaultTheme={colorScheme || 'dark'}>
       <ToastProvider>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
-        <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
         <ToastViewport top="$10" left="$4" right="$4" />
         <CurrentToast />
       </ToastProvider>
@@ -83,8 +85,6 @@ function AppContent() {
 export default function RootLayout() {
   useFrameworkReady();
   
-  const colorScheme = useColorScheme();
-
   // Load Inter fonts
   const [fontsLoaded, fontError] = useFonts({
     'Inter': require('@tamagui/font-inter/otf/Inter-Medium.otf'),
@@ -114,10 +114,12 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <BrowserProvider>
-        <AppContent />
-      </BrowserProvider>
-    </SafeAreaProvider>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <SafeAreaProvider>
+          <AppContent />
+        </SafeAreaProvider>
+      </PersistGate>
+    </Provider>
   );
 }

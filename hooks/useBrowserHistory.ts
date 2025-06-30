@@ -1,27 +1,52 @@
 import { useCallback, useMemo } from 'react';
-import { useBrowserContext, HistoryEntry } from '@/contexts/BrowserContext';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+  selectHistory,
+  selectRecentHistory,
+  selectHistoryByDate,
+  selectMostVisitedSites,
+} from '@/store/selectors';
+import {
+  addHistoryEntry,
+  clearHistory,
+  removeHistoryEntry,
+  updateHistoryEntry,
+} from '@/store/slices/historySlice';
+import { HistoryEntry } from '@/store/slices/historySlice';
 
 export function useBrowserHistory() {
-  const { state, addHistoryEntry, clearHistory, searchHistory } = useBrowserContext();
-
-  const history = useMemo(() => state.history, [state.history]);
+  const dispatch = useAppDispatch();
+  
+  const history = useAppSelector(selectHistory);
 
   const handleAddHistoryEntry = useCallback((url: string, title: string, favicon?: string) => {
-    addHistoryEntry(url, title, favicon);
-  }, [addHistoryEntry]);
+    dispatch(addHistoryEntry({ url, title, favicon }));
+  }, [dispatch]);
 
   const handleClearHistory = useCallback((selectedIds?: string[]) => {
-    clearHistory(selectedIds);
-  }, [clearHistory]);
+    dispatch(clearHistory({ selectedIds }));
+  }, [dispatch]);
 
-  const handleSearchHistory = useCallback((query: string) => {
-    return searchHistory(query);
-  }, [searchHistory]);
+  const handleRemoveHistoryEntry = useCallback((entryId: string) => {
+    dispatch(removeHistoryEntry({ entryId }));
+  }, [dispatch]);
+
+  const handleUpdateHistoryEntry = useCallback((entryId: string, updates: Partial<HistoryEntry>) => {
+    dispatch(updateHistoryEntry({ entryId, updates }));
+  }, [dispatch]);
+
+  const searchHistory = useCallback((query: string) => {
+    const lowerQuery = query.toLowerCase();
+    return history.filter(entry =>
+      entry.title.toLowerCase().includes(lowerQuery) ||
+      entry.url.toLowerCase().includes(lowerQuery)
+    );
+  }, [history]);
 
   const getHistoryByDate = useCallback((date: Date) => {
     const targetDate = date.toDateString();
     return history.filter(entry => 
-      entry.visitedAt.toDateString() === targetDate
+      new Date(entry.visitedAt).toDateString() === targetDate
     );
   }, [history]);
 
@@ -72,7 +97,9 @@ export function useBrowserHistory() {
     // Actions
     addHistoryEntry: handleAddHistoryEntry,
     clearHistory: handleClearHistory,
-    searchHistory: handleSearchHistory,
+    removeHistoryEntry: handleRemoveHistoryEntry,
+    updateHistoryEntry: handleUpdateHistoryEntry,
+    searchHistory,
     
     // Computed
     getHistoryByDate,

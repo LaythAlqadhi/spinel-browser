@@ -1,51 +1,67 @@
 import { useCallback, useMemo } from 'react';
-import { useBrowserContext, Tab } from '@/contexts/BrowserContext';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+  selectTabs,
+  selectActiveTabId,
+  selectActiveTab,
+  selectIsPrivateMode,
+  selectRegularTabs,
+  selectPrivateTabs,
+} from '@/store/selectors';
+import {
+  createTab,
+  closeTab,
+  setActiveTab,
+  updateTab,
+  toggleDesktopMode,
+  setTabZoom,
+  closeAllPrivateTabs,
+  initializeTabs,
+} from '@/store/slices/tabsSlice';
+import { Tab } from '@/store/slices/tabsSlice';
 
 export function useBrowserTabs() {
-  const { state, createTab, closeTab, setActiveTab, updateTab, toggleDesktopMode, setTabZoom } = useBrowserContext();
-
-  const tabs = useMemo(() => state.tabs, [state.tabs]);
-  const activeTabId = useMemo(() => state.activeTabId, [state.activeTabId]);
-  const isPrivateMode = useMemo(() => state.isPrivateMode, [state.isPrivateMode]);
-
-  const activeTab = useMemo(() => 
-    tabs.find(tab => tab.id === activeTabId), 
-    [tabs, activeTabId]
-  );
-
-  const regularTabs = useMemo(() => 
-    tabs.filter(tab => !tab.isPrivate), 
-    [tabs]
-  );
-
-  const privateTabs = useMemo(() => 
-    tabs.filter(tab => tab.isPrivate), 
-    [tabs]
-  );
+  const dispatch = useAppDispatch();
+  
+  const tabs = useAppSelector(selectTabs);
+  const activeTabId = useAppSelector(selectActiveTabId);
+  const activeTab = useAppSelector(selectActiveTab);
+  const isPrivateMode = useAppSelector(selectIsPrivateMode);
+  const regularTabs = useAppSelector(selectRegularTabs);
+  const privateTabs = useAppSelector(selectPrivateTabs);
 
   const handleCreateTab = useCallback((url?: string, isPrivate?: boolean) => {
-    return createTab(url, isPrivate);
-  }, [createTab]);
+    dispatch(createTab({ url, isPrivate }));
+    return Date.now().toString(); // Return the tab ID
+  }, [dispatch]);
 
   const handleCloseTab = useCallback((tabId: string) => {
-    closeTab(tabId);
-  }, [closeTab]);
+    dispatch(closeTab({ tabId }));
+  }, [dispatch]);
 
   const handleSetActiveTab = useCallback((tabId: string) => {
-    setActiveTab(tabId);
-  }, [setActiveTab]);
+    dispatch(setActiveTab({ tabId }));
+  }, [dispatch]);
 
   const handleUpdateTab = useCallback((tabId: string, updates: Partial<Tab>) => {
-    updateTab(tabId, updates);
-  }, [updateTab]);
+    dispatch(updateTab({ tabId, updates }));
+  }, [dispatch]);
 
   const handleToggleDesktopMode = useCallback((tabId: string) => {
-    toggleDesktopMode(tabId);
-  }, [toggleDesktopMode]);
+    dispatch(toggleDesktopMode({ tabId }));
+  }, [dispatch]);
 
   const handleSetTabZoom = useCallback((tabId: string, zoomLevel: number) => {
-    setTabZoom(tabId, zoomLevel);
-  }, [setTabZoom]);
+    dispatch(setTabZoom({ tabId, zoomLevel }));
+  }, [dispatch]);
+
+  const handleCloseAllPrivateTabs = useCallback(() => {
+    dispatch(closeAllPrivateTabs());
+  }, [dispatch]);
+
+  const handleInitializeTabs = useCallback(() => {
+    dispatch(initializeTabs());
+  }, [dispatch]);
 
   const canGoBack = useMemo(() => 
     activeTab?.canGoBack || false, 
@@ -75,5 +91,7 @@ export function useBrowserTabs() {
     updateTab: handleUpdateTab,
     toggleDesktopMode: handleToggleDesktopMode,
     setTabZoom: handleSetTabZoom,
+    closeAllPrivateTabs: handleCloseAllPrivateTabs,
+    initializeTabs: handleInitializeTabs,
   };
 }
