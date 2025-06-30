@@ -72,9 +72,7 @@ export default function TabManager({ visible, onClose }: TabManagerProps) {
           flexDirection="column"
           flex={1}
         >
-          <Tabs.List
-            paddingHorizontal="$4"
-          >
+          <Tabs.List paddingHorizontal="$4" marginTop="$4">
             <Tabs.Tab value="regular" flex={1}>
               <XStack alignItems="center" space="$2">
                 <SizableText fontWeight="500">
