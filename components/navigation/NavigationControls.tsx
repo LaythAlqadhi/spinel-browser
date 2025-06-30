@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 import { ArrowLeft, ArrowRight, RotateCcw, Share } from 'lucide-react-native';
 import { useBrowserNavigation } from '@/hooks/useBrowserNavigation';
 import { useToastController } from '@tamagui/toast';
@@ -18,15 +18,15 @@ const NavigationControls = memo<NavigationControlsProps>(({
   const { canGoBack, canGoForward, navigateBack, navigateForward, reload, activeTab } = useBrowserNavigation();
   const toast = useToastController();
 
-  const handleReload = useCallback(() => {
+  const handleReload = () => {
     if (onReload) {
       onReload();
     } else {
       reload();
     }
-  }, [onReload, reload]);
+  };
 
-  const handleShare = useCallback(async () => {
+  const handleShare = async () => {
     if (onShare) {
       onShare();
       return;
@@ -57,7 +57,7 @@ const NavigationControls = memo<NavigationControlsProps>(({
         message: `Copy this URL to share: ${activeTab.url}`,
       });
     }
-  }, [onShare, activeTab, toast]);
+  };
 
   return (
     <XStack alignItems="center" space="$2">

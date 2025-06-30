@@ -1,4 +1,4 @@
-import React, { memo, useState, useRef, useCallback, useMemo } from 'react';
+import React, { memo, useState, useRef, useCallback } from 'react';
 import { useTheme } from 'tamagui';
 import { TextInput, Dimensions } from 'react-native';
 import { Search, Clock, Bookmark } from 'lucide-react-native';
@@ -21,38 +21,6 @@ interface HomepageProps {
   onSearch: (query: string) => void;
 }
 
-const QuickActionItem = memo<{ item: any; onPress: (url: string) => void }>(({ item, onPress }) => (
-  <Button
-    onPress={() => onPress(item.url)}
-    height="auto"
-    paddingVertical="$2"
-  >
-    <XStack alignItems="center" space="$3">
-      <View
-        width={32}
-        height={32}
-        borderRadius="$4"
-        backgroundColor="$blue2"
-        alignItems="center"
-        justifyContent="center"
-        overflow="hidden"
-      >
-        <FaviconImage favicon={item.favicon} size={16} />
-      </View>
-      <YStack flex={1}>
-        <Text fontSize="$3" fontWeight="500" color="$color" numberOfLines={1}>
-          {item.title}
-        </Text>
-        <Text fontSize="$2" color="$gray10" numberOfLines={1}>
-          {item.url}
-        </Text>
-      </YStack>
-    </XStack>
-  </Button>
-));
-
-QuickActionItem.displayName = 'QuickActionItem';
-
 const Homepage = memo<HomepageProps>(({ onSearch }) => {
   const { color } = useTheme();
   const { history, bookmarks } = useBrowserStore();
@@ -70,8 +38,38 @@ const Homepage = memo<HomepageProps>(({ onSearch }) => {
     onSearch(url);
   }, [onSearch]);
 
-  const recentHistory = useMemo(() => history.slice(0, 6), [history]);
-  const recentBookmarks = useMemo(() => bookmarks.slice(0, 6), [bookmarks]);
+  const recentHistory = history.slice(0, 6);
+  const recentBookmarks = bookmarks.slice(0, 6);
+
+  const QuickActionItem = memo<{ item: any; onPress: (url: string) => void }>(({ item, onPress }) => (
+    <Button
+      onPress={() => onPress(item.url)}
+      height="auto"
+      paddingVertical="$2"
+    >
+      <XStack alignItems="center" space="$3">
+        <View
+          width={32}
+          height={32}
+          borderRadius="$4"
+          backgroundColor="$blue2"
+          alignItems="center"
+          justifyContent="center"
+          overflow="hidden"
+        >
+          <FaviconImage favicon={item.favicon} size={16} />
+        </View>
+        <YStack flex={1}>
+          <Text fontSize="$3" fontWeight="500" color="$color" numberOfLines={1}>
+            {item.title}
+          </Text>
+          <Text fontSize="$2" color="$gray10" numberOfLines={1}>
+            {item.url}
+          </Text>
+        </YStack>
+      </XStack>
+    </Button>
+  ));
 
   return (
     <ScrollView 
