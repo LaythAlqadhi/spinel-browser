@@ -73,9 +73,6 @@ export default function TabManager({ visible, onClose }: TabManagerProps) {
           flex={1}
         >
           <Tabs.List
-            backgroundColor="$background"
-            borderBottomWidth={1}
-            borderBottomColor="$borderColor"
             paddingHorizontal="$4"
           >
             <Tabs.Tab value="regular" flex={1}>
