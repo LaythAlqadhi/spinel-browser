@@ -124,7 +124,7 @@ export default function BottomNavigation({
           >
             <Text 
               fontSize="$1" 
-              color={isPrivateMode ? "white" : background.val}
+              color={isPrivateMode ? color.val : background.val}
               fontWeight="600"
               lineHeight={18}
             >
