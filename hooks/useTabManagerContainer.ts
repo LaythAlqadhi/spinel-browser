@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo } from 'react';
+import { useState, useCallback } from 'react';
 import { useBrowserTabs } from '@/hooks/useBrowserTabs';
 import TabCard from '@/components/ui/TabCard';
 import NewTabCard from '@/components/ui/NewTabCard';
@@ -7,12 +7,12 @@ import {
   XStack
 } from 'tamagui';
 
-interface TabManagerContainerProps {
+interface UseTabManagerContainerProps {
   onTabPress: (tabId: string) => void;
   onClose: () => void;
 }
 
-const TabManagerContainer = memo(({ onTabPress, onClose }: TabManagerContainerProps) => {
+export function useTabManagerContainer({ onTabPress, onClose }: UseTabManagerContainerProps) {
   const { tabs, activeTabId, createTab, closeTab } = useBrowserTabs();
   const [activeTabSection, setActiveTabSection] = useState<string>('regular');
 
@@ -66,8 +66,4 @@ const TabManagerContainer = memo(({ onTabPress, onClose }: TabManagerContainerPr
     privateTabs,
     renderTabGrid,
   };
-});
-
-TabManagerContainer.displayName = 'TabManagerContainer';
-
-export default TabManagerContainer;
+}

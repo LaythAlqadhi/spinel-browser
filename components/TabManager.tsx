@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTheme } from 'tamagui';
 import { X, Shield } from 'lucide-react-native';
 import { useBrowserTabs } from '@/hooks/useBrowserTabs';
-import TabManagerContainer from '@/components/containers/TabManagerContainer';
+import { useTabManagerContainer } from '@/hooks/useTabManagerContainer';
 import { 
   Sheet, 
   YStack, 
@@ -23,7 +23,7 @@ export default function TabManager({ visible, onClose }: TabManagerProps) {
   const { isPrivateMode, setActiveTab } = useBrowserTabs();
   const [activeTabSection, setActiveTabSection] = useState<string>(isPrivateMode ? 'private' : 'regular');
 
-  const tabManagerContainer = TabManagerContainer({
+  const tabManagerContainer = useTabManagerContainer({
     onTabPress: setActiveTab,
     onClose,
   });
