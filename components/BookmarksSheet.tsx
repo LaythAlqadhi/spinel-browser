@@ -27,7 +27,7 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
   const { color } = useTheme();
   const {
     bookmarks = [],
-    folders: bookmarkFolders = [],
+    bookmarkFolders = [],
     removeBookmark,
     createFolder,
     deleteFolder,
@@ -94,6 +94,11 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
     
     deleteFolder(folderId);
     
+    // Reset selected folder if it was deleted
+    if (selectedFolderId === folderId) {
+      setSelectedFolderId(null);
+    }
+    
     if (folderBookmarks.length > 0) {
       toast.show('Folder Deleted', {
         message: `"${folderName}" and ${folderBookmarks.length} bookmarks have been deleted.`,
@@ -127,7 +132,10 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
           size="$2"
           circular
           backgroundColor="transparent"
-          onPress={() => handleDeleteFolder(item.id)}
+          onPress={(e) => {
+            e.stopPropagation();
+            handleDeleteFolder(item.id);
+          }}
           icon={<Trash2 size={16} color="#FF3B30" />}
         />
       </XStack>
@@ -159,7 +167,10 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
           size="$2"
           circular
           backgroundColor="transparent"
-          onPress={() => handleDeleteBookmark(item.id)}
+          onPress={(e) => {
+            e.stopPropagation();
+            handleDeleteBookmark(item.id);
+          }}
           icon={<Trash2 size={16} color="#FF3B30" />}
         />
       </XStack>
@@ -242,13 +253,46 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
             <Text fontSize="$6" fontWeight="600" paddingHorizontal="$5" marginBottom="$3">
               Folders
             </Text>
-            <FlatList
-              data={bookmarkFolders || []}
-              renderItem={renderFolder}
-              keyExtractor={item => item.id}
+            <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-            />
+              contentContainerStyle={{ paddingHorizontal: 12 }}
+            >
+              <XStack space="$2">
+                {(bookmarkFolders || []).map((folder) => (
+                  <Button
+                    key={folder.id}
+                    backgroundColor={selectedFolderId === folder.id ? '$gray4' : '$gray2'}
+                    height="auto"
+                    paddingVertical="$3"
+                    paddingHorizontal="$3"
+                    minWidth={120}
+                    onPress={() => setSelectedFolderId(selectedFolderId === folder.id ? null : folder.id)}
+                    pressStyle={{ backgroundColor: '$gray3' }}
+                  >
+                    <XStack alignItems="center" space="$2" flex={1}>
+                      <Folder size={20} color={color.val} />
+                      <Text fontSize="$4" fontWeight="500" flex={1}>
+                        {folder.name}
+                      </Text>
+                      <Text fontSize="$3" color="$gray10">
+                        {(bookmarks || []).filter(b => b.folderId === folder.id).length}
+                      </Text>
+                      <Button
+                        size="$2"
+                        circular
+                        backgroundColor="transparent"
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          handleDeleteFolder(folder.id);
+                        }}
+                        icon={<Trash2 size={16} color="#FF3B30" />}
+                      />
+                    </XStack>
+                  </Button>
+                ))}
+              </XStack>
+            </ScrollView>
           </YStack>
         )}
 
@@ -305,7 +349,6 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
           )}
         </Sheet.ScrollView>
 
-
         {/* New Folder Modal */}
         {showNewFolderModal && (
           <View
@@ -355,7 +398,7 @@ export default function BookmarksSheet({ visible, onClose }: BookmarksSheetProps
                   </Button>
                   <Button
                     flex={1}
-                   themeInverse
+                    themeInverse
                     onPress={handleCreateFolder}
                   >
                     <Text>Create</Text>
