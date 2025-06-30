@@ -1,13 +1,17 @@
 import { useBrowserSettings } from '@/hooks/useBrowserSettings'
-import { Anchor, Image, Stack } from 'tamagui'
+import { Anchor, Image, Stack, useMedia } from 'tamagui'
 
 export default function BoltBadge() {
   const { theme } = useBrowserSettings()
+  const media = useMedia()
 
   const imageUri =
     theme === 'dark'
       ? 'https://storage.bolt.army/white_circle_360x360.png'
       : 'https://storage.bolt.army/black_circle_360x360.png'
+
+  // Responsive logic in JS
+  const size = media.md ? 200 : 100
 
   return (
     <Stack position="absolute" top="$4" right="$4" zIndex={50}>
@@ -18,8 +22,8 @@ export default function BoltBadge() {
       >
         <Image
           source={{ uri: imageUri }}
-          width={{ xs: 100, md: 200 }}
-          height={{ xs: 100, md: 200 }}
+          width={size}
+          height={size}
           resizeMode="contain"
         />
       </Anchor>
