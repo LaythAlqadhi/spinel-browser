@@ -18,8 +18,8 @@ import { Bookmark } from '@/store/slices/bookmarksSlice';
 export function useBrowserBookmarks() {
   const dispatch = useAppDispatch();
   
-  const bookmarks = useAppSelector(selectBookmarks);
-  const bookmarkFolders = useAppSelector(selectBookmarkFolders);
+  const bookmarks = useAppSelector(selectBookmarks) ?? [];
+  const bookmarkFolders = useAppSelector(selectBookmarkFolders) ?? [];
 
   const handleAddBookmark = useCallback((url: string, title: string, folderId?: string) => {
     dispatch(addBookmark({ url, title, folderId }));

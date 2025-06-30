@@ -23,12 +23,12 @@ import { Tab } from '@/store/slices/tabsSlice';
 export function useBrowserTabs() {
   const dispatch = useAppDispatch();
   
-  const tabs = useAppSelector(selectTabs);
+  const tabs = useAppSelector(selectTabs) ?? [];
   const activeTabId = useAppSelector(selectActiveTabId);
   const activeTab = useAppSelector(selectActiveTab);
   const isPrivateMode = useAppSelector(selectIsPrivateMode);
-  const regularTabs = useAppSelector(selectRegularTabs);
-  const privateTabs = useAppSelector(selectPrivateTabs);
+  const regularTabs = useAppSelector(selectRegularTabs) ?? [];
+  const privateTabs = useAppSelector(selectPrivateTabs) ?? [];
 
   const handleCreateTab = useCallback((url?: string, isPrivate?: boolean) => {
     dispatch(createTab({ url, isPrivate }));
