@@ -65,6 +65,7 @@ export default function Homepage({ onSearch }: HomepageProps) {
 
   return (
     <ScrollView 
+      position="relative"
       flex={1}
       backgroundColor="$background"
       showsVerticalScrollIndicator={false}
