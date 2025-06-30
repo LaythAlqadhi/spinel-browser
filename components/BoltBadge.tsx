@@ -2,7 +2,7 @@ import { Anchor, Image, Stack, YStack } from 'tamagui'
 import { useEffect, useState } from 'react'
 import { AnimatePresence } from 'tamagui'
 
-export function BoltBadge() {
+export default function BoltBadge() {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
