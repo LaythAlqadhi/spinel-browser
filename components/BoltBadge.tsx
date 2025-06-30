@@ -23,10 +23,6 @@ export default function BoltBadge() {
                 }}
                 width={160}
                 height={32}
-                hoverStyle={{
-                  opacity: 1,
-                  transform: [{ scale: 1.1 }, { rotate: '22deg' }],
-                }}
               />
             </Anchor>
           </YStack>
