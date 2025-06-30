@@ -3,18 +3,9 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence } from 'tamagui'
 
 export default function BoltBadge() {
-  const [show, setShow] = useState(false)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShow(true), 1000)
-    return () => clearTimeout(timer)
-  }, [])
-
   return (
     <Stack position="absolute" top="$4" right="$4" zIndex={50}>
-      <AnimatePresence>
-        {show && (
-          <YStack
+      <YStack
             animation="medium"
             enterStyle={{ opacity: 0, rotateY: '-90deg' }}
             exitStyle={{ opacity: 0, rotateY: '-90deg' }}
@@ -46,8 +37,6 @@ export default function BoltBadge() {
               />
             </Anchor>
           </YStack>
-        )}
-      </AnimatePresence>
     </Stack>
   )
 }
