@@ -23,13 +23,6 @@ export default function BoltBadge() {
                 }}
                 width={160}
                 height={32}
-                style={{
-                  opacity: 0.9,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 4,
-                }}
                 hoverStyle={{
                   opacity: 1,
                   transform: [{ scale: 1.1 }, { rotate: '22deg' }],
