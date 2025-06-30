@@ -14,6 +14,7 @@ export default function BoltBadge() {
                 source={{
                   uri: 'https://storage.bolt.army/logotext_poweredby_360w.png',
                 }}
+                width='auto'
                 height={32}
               />
             </Anchor>
