@@ -18,6 +18,7 @@ import { useBrowserTabs } from '@/hooks/useBrowserTabs';
 import { useBrowserSettings } from '@/hooks/useBrowserSettings';
 import { useBrowserBookmarks } from '@/hooks/useBrowserBookmarks';
 import { useBrowserHistory } from '@/hooks/useBrowserHistory';
+import { webViewRefs } from '@/components/BrowserWebView';
 import { useToastController } from '@tamagui/toast';
 import ZoomSheet from './ZoomSheet';
 import { 
@@ -95,7 +96,7 @@ export default function Menu({
     toggleDesktopMode(activeTab.id);
     
     // Reload the page to apply the new content mode
-    const webViewRef = (activeTab as any).webViewRef;
+    const webViewRef = webViewRefs.get(activeTab.id);
     if (webViewRef) {
       setTimeout(() => {
         webViewRef.reload();
@@ -145,7 +146,7 @@ export default function Menu({
       return;
     }
 
-    const webViewRef = (activeTab as any).webViewRef;
+    const webViewRef = webViewRefs.get(activeTab.id);
     if (webViewRef) {
       const erudaScript = `
         (function() {

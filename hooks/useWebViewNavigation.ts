@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useBrowserTabs } from './useBrowserTabs';
 import { useBrowserSettings } from './useBrowserSettings';
+import { webViewRefs } from '@/components/BrowserWebView';
 
 export function useWebViewNavigation() {
   const { activeTab, updateTab } = useBrowserTabs();
@@ -28,7 +29,7 @@ export function useWebViewNavigation() {
       }
     }
 
-    const webViewRef = (activeTab as any).webViewRef;
+    const webViewRef = webViewRefs.get(activeTab.id);
     if (webViewRef) {
       webViewRef.navigateToUrl(formattedUrl);
     }
@@ -37,7 +38,7 @@ export function useWebViewNavigation() {
   const goBack = useCallback(() => {
     if (!activeTab || !canGoBack) return;
     
-    const webViewRef = (activeTab as any).webViewRef;
+    const webViewRef = webViewRefs.get(activeTab.id);
     if (webViewRef) {
       webViewRef.goBack();
     }
@@ -46,7 +47,7 @@ export function useWebViewNavigation() {
   const goForward = useCallback(() => {
     if (!activeTab || !canGoForward) return;
     
-    const webViewRef = (activeTab as any).webViewRef;
+    const webViewRef = webViewRefs.get(activeTab.id);
     if (webViewRef) {
       webViewRef.goForward();
     }
@@ -55,7 +56,7 @@ export function useWebViewNavigation() {
   const reload = useCallback(() => {
     if (!activeTab) return;
     
-    const webViewRef = (activeTab as any).webViewRef;
+    const webViewRef = webViewRefs.get(activeTab.id);
     if (webViewRef) {
       webViewRef.reload();
     }
@@ -64,7 +65,7 @@ export function useWebViewNavigation() {
   const applyZoom = useCallback((zoomLevel: number) => {
     if (!activeTab) return;
     
-    const webViewRef = (activeTab as any).webViewRef;
+    const webViewRef = webViewRefs.get(activeTab.id);
     if (webViewRef) {
       webViewRef.applyZoom(zoomLevel);
     }
@@ -73,7 +74,7 @@ export function useWebViewNavigation() {
   const resetZoom = useCallback(() => {
     if (!activeTab) return;
     
-    const webViewRef = (activeTab as any).webViewRef;
+    const webViewRef = webViewRefs.get(activeTab.id);
     if (webViewRef) {
       webViewRef.resetZoom();
     }

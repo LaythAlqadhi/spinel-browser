@@ -16,6 +16,9 @@ interface BrowserWebViewProps {
   emulationZoom?: number;
 }
 
+// Global registry to store webView refs outside of Redux state
+const webViewRefs = new Map<string, any>();
+
 export default function BrowserWebView({ 
   tab, 
   isActive, 
@@ -25,7 +28,7 @@ export default function BrowserWebView({
   const webViewRef = useRef<WebView>(null);
   const viewShotRef = useRef<ViewShot>(null);
   const mountedRef = useRef<boolean>(false);
-  const { updateTab, addHistoryEntry, createTab } = useBrowserTabs();
+  const { updateTab } = useBrowserTabs();
   const { addHistoryEntry: addEntry } = useBrowserHistory();
   const { settings, theme } = useBrowserSettings();
   const [showHomepage, setShowHomepage] = useState(false);
@@ -42,8 +45,25 @@ export default function BrowserWebView({
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
+      // Clean up the ref when component unmounts
+      webViewRefs.delete(tab.id);
     };
-  }, []);
+  }, [tab.id]);
+
+  // Store webView ref in global registry instead of Redux state
+  useEffect(() => {
+    if (webViewRef.current) {
+      webViewRefs.set(tab.id, {
+        goBack,
+        goForward,
+        reload,
+        navigateToUrl,
+        injectJavaScript,
+        applyZoom,
+        resetZoom,
+      });
+    }
+  }, [tab.id]);
 
   useEffect(() => {
     const isBlankTab = tab.url === 'about:blank';
@@ -693,26 +713,6 @@ export default function BrowserWebView({
     navigateToUrl(query);
   };
 
-  useEffect(() => {
-    if (isActive) {
-      (tab as any).webViewRef = {
-        goBack,
-        goForward,
-        reload,
-        navigateToUrl,
-        injectJavaScript,
-        applyZoom,
-        resetZoom,
-      };
-      
-      updateTab(tab.id, {
-        canGoBack: navigationState.canGoBack,
-        canGoForward: navigationState.canGoForward,
-        loading: navigationState.loading
-      });
-    }
-  }, [isActive, navigationState]);
-
   return (
     <View
       position="absolute"
@@ -794,3 +794,6 @@ export default function BrowserWebView({
     </View>
   );
 }
+
+// Export the webViewRefs registry for other components to access
+export { webViewRefs };

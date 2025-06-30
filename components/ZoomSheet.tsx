@@ -2,6 +2,7 @@ import React from 'react';
 import { useTheme } from 'tamagui';
 import { ZoomIn, ZoomOut, RotateCcw, X } from 'lucide-react-native';
 import { useBrowserTabs } from '@/hooks/useBrowserTabs';
+import { webViewRefs } from '@/components/BrowserWebView';
 import { useToastController } from '@tamagui/toast';
 import {
   Sheet,
@@ -41,7 +42,7 @@ export default function ZoomSheet({ visible, onClose }: ZoomSheetProps) {
     setTabZoom(activeTab.id, clampedZoom);
 
     // Apply zoom to the WebView
-    const webViewRef = (activeTab as any).webViewRef;
+    const webViewRef = webViewRefs.get(activeTab.id);
     if (webViewRef) {
       webViewRef.applyZoom(clampedZoom);
 

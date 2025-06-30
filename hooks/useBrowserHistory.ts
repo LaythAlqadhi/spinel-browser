@@ -17,7 +17,7 @@ import { HistoryEntry } from '@/store/slices/historySlice';
 export function useBrowserHistory() {
   const dispatch = useAppDispatch();
   
-  const history = useAppSelector(selectHistory);
+  const history = useAppSelector(selectHistory) ?? [];
 
   const handleAddHistoryEntry = useCallback((url: string, title: string, favicon?: string) => {
     dispatch(addHistoryEntry({ url, title, favicon }));
@@ -54,13 +54,14 @@ export function useBrowserHistory() {
     return history.slice(0, limit);
   }, [history]);
 
-  const groupHistoryByDate = useCallback(() => {
+  const groupHistoryByDate = useCallback((filteredHistory?: HistoryEntry[]) => {
+    const historyToGroup = filteredHistory || history;
     const grouped: { [key: string]: HistoryEntry[] } = {};
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
 
-    history.forEach(entry => {
+    historyToGroup.forEach(entry => {
       const entryDate = new Date(entry.visitedAt);
       let dateKey: string;
 
