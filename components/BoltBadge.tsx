@@ -5,14 +5,7 @@ import { AnimatePresence } from 'tamagui'
 export default function BoltBadge() {
   return (
     <Stack position="absolute" top="$4" right="$4" zIndex={50}>
-      <YStack
-            animation="medium"
-            enterStyle={{ opacity: 0, rotateY: '-90deg' }}
-            exitStyle={{ opacity: 0, rotateY: '-90deg' }}
-            opacity={1}
-            rotateY="0deg"
-          >
-            <Anchor
+<Anchor
               href="https://bolt.new/?rid=iqfyzf"
               target="_blank"
               rel="noopener noreferrer"
@@ -25,7 +18,6 @@ export default function BoltBadge() {
                 height={32}
               />
             </Anchor>
-          </YStack>
     </Stack>
   )
 }
