@@ -10,7 +10,7 @@ export default function BoltBadge() {
             >
               <Image
                 source={{
-                  uri: 'https://storage.bolt.army/logotext_poweredby_360w.png',
+                  uri: 'https://storage.bolt.army/white_circle_360x360.png',
                 }}
                 width={160}
                 height={32}
