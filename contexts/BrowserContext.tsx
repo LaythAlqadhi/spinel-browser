@@ -353,7 +353,7 @@ interface BrowserContextType {
   setTheme: (theme: 'light' | 'dark') => void;
   setPrivateMode: (isPrivate: boolean) => void;
   closeAllPrivateTabs: () => void;
-  initializeStore: () => Promise<void>;
+  initializeStore: () => void;
 }
 
 const BrowserContext = createContext<BrowserContextType | undefined>(undefined);
@@ -442,6 +442,31 @@ export function BrowserProvider({ children }: BrowserProviderProps) {
 
     loadPersistedState();
   }, []);
+
+  // Auto-create initial tab when state is initialized and no tabs exist
+  useEffect(() => {
+    if (state.isInitialized && state.tabs.length === 0) {
+      // Create a blank tab that will show the homepage
+      const newTab: Tab = {
+        id: Date.now().toString(),
+        url: 'about:blank',
+        title: 'New Tab',
+        loading: false,
+        canGoBack: false,
+        canGoForward: false,
+        progress: 0,
+        createdAt: new Date(),
+        isPrivate: false,
+        desktopMode: false,
+        zoomLevel: 100,
+      };
+
+      dispatch({ 
+        type: 'CREATE_TAB', 
+        payload: { url: 'about:blank', isPrivate: false } 
+      });
+    }
+  }, [state.isInitialized, state.tabs.length]);
 
   // Persist state changes (including private tabs now)
   useEffect(() => {
@@ -564,16 +589,10 @@ export function BrowserProvider({ children }: BrowserProviderProps) {
     dispatch({ type: 'CLOSE_ALL_PRIVATE_TABS' });
   };
 
-  const initializeStore = async () => {
-    // Wait for the state to be initialized from persistence
-    if (!state.isInitialized) {
-      return;
-    }
-
-    // Always ensure we have at least one tab
-    if (state.tabs.length === 0) {
-      createTab(); // This will create a blank tab with 'about:blank' URL
-    }
+  const initializeStore = () => {
+    // This function is now just a placeholder since initialization
+    // happens automatically via useEffect when state.isInitialized becomes true
+    // and state.tabs.length === 0
   };
 
   const contextValue: BrowserContextType = {
