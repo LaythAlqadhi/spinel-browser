@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTheme } from 'tamagui';
 import { Dimensions } from 'react-native';
 import { X, Plus, Globe, Shield, Eye, EyeOff } from 'lucide-react-native';
-import { useBrowserStore } from '@/stores/browserStore';
+import { useBrowserContext } from '@/contexts/BrowserContext';
 import { 
   Sheet, 
   YStack, 
@@ -25,14 +25,12 @@ interface TabManagerProps {
 export default function TabManager({ visible, onClose }: TabManagerProps) {
   const { color } = useTheme();
   const {
-    tabs,
-    activeTabId,
-    isPrivateMode,
+    state: { tabs, activeTabId, theme, isPrivateMode },
     setActiveTab,
     closeTab,
     createTab,
     closeAllPrivateTabs,
-  } = useBrowserStore();
+  } = useBrowserContext();
 
   const [activeTabSection, setActiveTabSection] = useState<string>(isPrivateMode ? 'private' : 'regular');
 

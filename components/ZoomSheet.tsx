@@ -1,13 +1,15 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { useTheme } from 'tamagui';
 import { ZoomIn, ZoomOut, RotateCcw, X } from 'lucide-react-native';
-import { useZoomControl } from '@/hooks/useZoomControl';
+import { useTabs } from '@/contexts/BrowserContext';
+import { useToastController } from '@tamagui/toast';
 import {
   Sheet,
   YStack,
   XStack,
   Text,
   Button,
+  View,
   Separator
 } from 'tamagui';
 
@@ -16,9 +18,59 @@ interface ZoomSheetProps {
   onClose: () => void;
 }
 
-const ZoomSheet = memo<ZoomSheetProps>(({ visible, onClose }) => {
+export default function ZoomSheet({ visible, onClose }: ZoomSheetProps) {
   const { color } = useTheme();
-  const { currentZoom, canZoomIn, canZoomOut, zoomIn, zoomOut, resetZoom } = useZoomControl();
+  const { tabs, activeTabId, setTabZoom } = useTabs();
+  const toast = useToastController();
+
+  const activeTab = tabs.find(tab => tab.id === activeTabId);
+  const currentZoom = activeTab?.zoomLevel || 100;
+
+  const handleZoomChange = (newZoom: number) => {
+    if (!activeTab || activeTab.url === 'about:blank') {
+      toast.show('Zoom', {
+        message: 'Zoom can only be used on loaded web pages.',
+      });
+      return;
+    }
+
+    // Clamp zoom between 25% and 150%
+    const clampedZoom = Math.max(25, Math.min(150, newZoom));
+
+    // Update the zoom level in the browser state
+    setTabZoom(activeTab.id, clampedZoom);
+
+    // Apply zoom to the WebView
+    const webViewRef = (activeTab as any).webViewRef;
+    if (webViewRef) {
+      webViewRef.applyZoom(clampedZoom);
+
+      toast.show('Zoom Level', {
+        message: `Page zoom set to ${clampedZoom}%`,
+      });
+    } else {
+      toast.show('Zoom', {
+        message: 'Zoom is not available for this page.',
+      });
+    }
+  };
+
+  const handleZoomIn = () => {
+    const newZoom = Math.min(150, currentZoom + 25);
+    handleZoomChange(newZoom);
+  };
+
+  const handleZoomOut = () => {
+    const newZoom = Math.max(25, currentZoom - 25);
+    handleZoomChange(newZoom);
+  };
+
+  const handleResetZoom = () => {
+    handleZoomChange(100);
+  };
+
+  const canZoomIn = currentZoom < 150;
+  const canZoomOut = currentZoom > 25;
 
   return (
     <Sheet
@@ -73,21 +125,21 @@ const ZoomSheet = memo<ZoomSheetProps>(({ visible, onClose }) => {
 
           {/* Zoom Controls */}
           <XStack space="$3">
-            <Button
-              flex={1}
-              onPress={zoomOut}
-              disabled={!canZoomOut}
-              opacity={!canZoomOut ? 0.5 : 1}
-            >
-              <ZoomOut size={24} color={color.val} />
-              <Text fontSize="$3" fontWeight="500">
-                Zoom Out
-              </Text>
-            </Button>
+              <Button
+                flex={1}
+                onPress={handleZoomOut}
+                disabled={!canZoomOut}
+                opacity={!canZoomOut ? 0.5 : 1}
+              >
+                <ZoomOut size={24} color={color.val} />
+                  <Text fontSize="$3" fontWeight="500">
+                    Zoom Out
+                  </Text>
+              </Button>
 
-            <Button
-              flex={1}
-              onPress={resetZoom}
+               <Button
+                 flex={1}
+              onPress={handleResetZoom}
               disabled={currentZoom === 100}
               opacity={currentZoom === 100 ? 0.5 : 1}
             >
@@ -97,24 +149,20 @@ const ZoomSheet = memo<ZoomSheetProps>(({ visible, onClose }) => {
               </Text>
             </Button>
               
-            <Button
-              flex={1}
-              onPress={zoomIn}
-              disabled={!canZoomIn}
-              opacity={!canZoomIn ? 0.5 : 1}
-            >
-              <ZoomIn size={24} color={color.val} />
-              <Text fontSize="$3" fontWeight="500">
-                Zoom In
-              </Text>
-            </Button>
-          </XStack>
+              <Button
+                flex={1}
+                onPress={handleZoomIn}
+                disabled={!canZoomIn}
+                opacity={!canZoomIn ? 0.5 : 1}
+              >
+                 <ZoomIn size={24} color={color.val} />
+                  <Text fontSize="$3" fontWeight="500">
+                    Zoom In
+                  </Text>
+              </Button>
+            </XStack>
         </YStack>
       </Sheet.Frame>
     </Sheet>
   );
-});
-
-ZoomSheet.displayName = 'ZoomSheet';
-
-export default ZoomSheet;
+}

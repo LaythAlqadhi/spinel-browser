@@ -1,9 +1,8 @@
-import React, { memo, useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { useTheme } from 'tamagui';
 import { TextInput, Dimensions } from 'react-native';
-import { Search, Clock, Bookmark } from 'lucide-react-native';
-import { useBrowserStore } from '@/stores/browserStore';
-import FaviconImage from '@/components/ui/FaviconImage';
+import { Search, Clock, Bookmark, TrendingUp, Globe } from 'lucide-react-native';
+import { useBrowserContext } from '@/contexts/BrowserContext';
 import { 
   YStack, 
   XStack, 
@@ -21,55 +20,44 @@ interface HomepageProps {
   onSearch: (query: string) => void;
 }
 
-const Homepage = memo<HomepageProps>(({ onSearch }) => {
+export default function Homepage({ onSearch }: HomepageProps) {
   const { color } = useTheme();
-  const { history, bookmarks } = useBrowserStore();
+  const { state } = useBrowserContext();
+  const { theme, history, bookmarks } = state;
   const [searchQuery, setSearchQuery] = useState('');
   const inputRef = useRef<TextInput>(null);
 
-  const handleSearch = useCallback(() => {
+  const handleSearch = () => {
     if (searchQuery.trim()) {
       onSearch(searchQuery.trim());
       setSearchQuery('');
     }
-  }, [searchQuery, onSearch]);
+  };
 
-  const handleQuickAction = useCallback((url: string) => {
+  const handleQuickAction = (url: string) => {
     onSearch(url);
-  }, [onSearch]);
+  };
 
   const recentHistory = history.slice(0, 6);
   const recentBookmarks = bookmarks.slice(0, 6);
 
-  const QuickActionItem = memo<{ item: any; onPress: (url: string) => void }>(({ item, onPress }) => (
-    <Button
-      onPress={() => onPress(item.url)}
-      height="auto"
-      paddingVertical="$2"
-    >
-      <XStack alignItems="center" space="$3">
-        <View
-          width={32}
-          height={32}
-          borderRadius="$4"
-          backgroundColor="$blue2"
-          alignItems="center"
-          justifyContent="center"
-          overflow="hidden"
-        >
-          <FaviconImage favicon={item.favicon} size={16} />
-        </View>
-        <YStack flex={1}>
-          <Text fontSize="$3" fontWeight="500" color="$color" numberOfLines={1}>
-            {item.title}
-          </Text>
-          <Text fontSize="$2" color="$gray10" numberOfLines={1}>
-            {item.url}
-          </Text>
-        </YStack>
-      </XStack>
-    </Button>
-  ));
+  const FaviconOrGlobe = ({ favicon, size = 16 }: { favicon?: string; size?: number }) => {
+    if (favicon) {
+      return (
+        <Image
+          source={{ uri: favicon }}
+          width={size}
+          height={size}
+          borderRadius="$2"
+          onError={() => {
+            // If favicon fails to load, we'll fall back to the globe icon
+            // This is handled by the parent component's conditional rendering
+          }}
+        />
+      );
+    }
+    return <Globe size={size} color={color.val} />;
+  };
 
   return (
     <ScrollView 
@@ -131,11 +119,34 @@ const Homepage = memo<HomepageProps>(({ onSearch }) => {
             </XStack>
             <YStack space="$2">
               {recentHistory.map((item, index) => (
-                <QuickActionItem 
-                  key={`history-${index}`} 
-                  item={item} 
-                  onPress={handleQuickAction} 
-                />
+                <Button
+                  key={index}
+                  onPress={() => handleQuickAction(item.url)}
+                  height="auto"
+                  paddingVertical="$2"
+                >
+                  <XStack alignItems="center" space="$3">
+                    <View
+                      width={32}
+                      height={32}
+                      borderRadius="$4"
+                      backgroundColor="$blue2"
+                      alignItems="center"
+                      justifyContent="center"
+                      overflow="hidden"
+                    >
+                      <FaviconOrGlobe favicon={item.favicon} size={16} />
+                    </View>
+                    <YStack flex={1}>
+                      <Text fontSize="$3" fontWeight="500" color="$color" numberOfLines={1}>
+                        {item.title}
+                      </Text>
+                      <Text fontSize="$2" color="$gray10" numberOfLines={1}>
+                        {item.url}
+                      </Text>
+                    </YStack>
+                  </XStack>
+                </Button>
               ))}
             </YStack>
           </YStack>
@@ -152,11 +163,34 @@ const Homepage = memo<HomepageProps>(({ onSearch }) => {
             </XStack>
             <YStack space="$2">
               {recentBookmarks.map((item, index) => (
-                <QuickActionItem 
-                  key={`bookmark-${index}`} 
-                  item={item} 
-                  onPress={handleQuickAction} 
-                />
+                <Button
+                  key={index}
+                  onPress={() => handleQuickAction(item.url)}
+                  height="auto"
+                  paddingVertical="$2"
+                >
+                  <XStack alignItems="center" space="$3">
+                    <View
+                      width={32}
+                      height={32}
+                      borderRadius="$4"
+                      backgroundColor="$blue2"
+                      alignItems="center"
+                      justifyContent="center"
+                      overflow="hidden"
+                    >
+                      <FaviconOrGlobe favicon={item.favicon} size={16} />
+                    </View>
+                    <YStack flex={1}>
+                      <Text fontSize="$3" fontWeight="500" color="$color" numberOfLines={1}>
+                        {item.title}
+                      </Text>
+                      <Text fontSize="$2" color="$gray10" numberOfLines={1}>
+                        {item.url}
+                      </Text>
+                    </YStack>
+                  </XStack>
+                </Button>
               ))}
             </YStack>
           </YStack>
@@ -164,8 +198,4 @@ const Homepage = memo<HomepageProps>(({ onSearch }) => {
       </YStack>
     </ScrollView>
   );
-});
-
-Homepage.displayName = 'Homepage';
-
-export default Homepage;
+}

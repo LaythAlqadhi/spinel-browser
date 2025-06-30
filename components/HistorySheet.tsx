@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTheme } from 'tamagui';
 import { SectionList } from 'react-native';
 import { History, Search, Trash2, Globe, Calendar, X } from 'lucide-react-native';
-import { useHistoryStore, useTabsStore, useSettingsStore } from '@/stores/browserStore';
+import { useHistory, useTabs, useSettings } from '@/contexts/BrowserContext';
 import { useToastController } from '@tamagui/toast';
 import {
   Sheet,
@@ -29,9 +29,9 @@ export default function HistorySheet({ visible, onClose }: HistorySheetProps) {
   const {
     history,
     clearHistory,
-  } = useHistoryStore();
-  const { tabs, activeTabId, updateTab } = useTabsStore();
-  const { theme } = useSettingsStore();
+  } = useHistory();
+  const { tabs, activeTabId, updateTab } = useTabs();
+  const { theme } = useSettings();
   const toast = useToastController();
 
   const [searchQuery, setSearchQuery] = useState('');
