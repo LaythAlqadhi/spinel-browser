@@ -1,8 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
 import { useTheme } from 'tamagui';
 import { TextInput, Platform } from 'react-native';
-import { RotateCcw, Share, Lock, Shield, TriangleAlert as AlertTriangle, Search, MonitorSmartphone } from 'lucide-react-native';
-import { useBrowserContext } from '../contexts/BrowserContext';
+import { RotateCcw, Share, Shield, Search, MonitorSmartphone } from 'lucide-react-native';
+import { useBrowserTabs } from '@/hooks/useBrowserTabs';
+import { useBrowserHistory } from '@/hooks/useBrowserHistory';
+import { useBrowserSettings } from '@/hooks/useBrowserSettings';
+import { useWebViewNavigation } from '@/hooks/useWebViewNavigation';
+import SecurityIndicator from '@/components/ui/SecurityIndicator';
 import { useToastController } from '@tamagui/toast';
 import * as Sharing from 'expo-sharing';
 import { 
@@ -21,59 +25,32 @@ interface NavigationBarProps {
 
 export default function NavigationBar({ onTabPress, onNewTab }: NavigationBarProps) {
   const { color } = useTheme();
-  const {
-    state: { tabs, activeTabId, history, settings, theme, isPrivateMode },
-  } = useBrowserContext();
-  
+  const { activeTab, isPrivateMode } = useBrowserTabs();
+  const { history } = useBrowserHistory();
+  const { settings } = useBrowserSettings();
+  const { reload } = useWebViewNavigation();
   const toast = useToastController();
+  
   const [urlInput, setUrlInput] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const inputRef = useRef<TextInput>(null);
-  
-  const activeTab = tabs.find(tab => tab.id === activeTabId);
 
-  const getSecurityStatus = () => {
-    if (!activeTab?.url || activeTab.url === 'about:blank') {
-      return { type: 'none', icon: null, color: null };
+  const filteredSuggestions = useMemo(() => {
+    if (!settings.showSuggestions || urlInput.length <= 1 || isPrivateMode) {
+      return [];
     }
 
-    const url = activeTab.url.toLowerCase();
-    
-    if (url.startsWith('https://')) {
-      return { 
-        type: 'secure', 
-        icon: <Lock size={16} color="#27CA3F" />, 
-        color: '#27CA3F',
-        label: 'Secure'
-      };
-    } else if (url.startsWith('http://')) {
-      return { 
-        type: 'insecure', 
-        icon: <AlertTriangle size={16} color="#FF9500" />, 
-        color: '#FF9500',
-        label: 'Not Secure'
-      };
-    } else if (url.startsWith('file://') || url.includes('localhost')) {
-      return { 
-        type: 'local', 
-        icon: <Shield size={16} color="#007AFF" />, 
-        color: '#007AFF',
-        label: 'Local'
-      };
-    }
+    return history
+      .filter(entry => 
+        entry.url.toLowerCase().includes(urlInput.toLowerCase()) ||
+        entry.title.toLowerCase().includes(urlInput.toLowerCase())
+      )
+      .slice(0, 5)
+      .map(entry => entry.url);
+  }, [history, urlInput, settings.showSuggestions, isPrivateMode]);
 
-    return { 
-      type: 'unknown', 
-      icon: <AlertTriangle size={16} color={color.val} />, 
-      color: '$gray10',
-      label: 'Unknown'
-    };
-  };
-
-  const securityStatus = getSecurityStatus();
-
-  const handleUrlSubmit = () => {
+  const handleUrlSubmit = useCallback(() => {
     if (!activeTab || !urlInput.trim()) return;
     
     const webViewRef = (activeTab as any).webViewRef;
@@ -85,41 +62,27 @@ export default function NavigationBar({ onTabPress, onNewTab }: NavigationBarPro
     setUrlInput('');
     setSuggestions([]);
     inputRef.current?.blur();
-  };
+  }, [activeTab, urlInput]);
 
-  const handleUrlInputChange = (text: string) => {
+  const handleUrlInputChange = useCallback((text: string) => {
     setUrlInput(text);
-    
-    // Don't show suggestions for private tabs
-    if (settings.showSuggestions && text.length > 1 && !isPrivateMode) {
-      const filteredHistory = history
-        .filter(entry => 
-          entry.url.toLowerCase().includes(text.toLowerCase()) ||
-          entry.title.toLowerCase().includes(text.toLowerCase())
-        )
-        .slice(0, 5)
-        .map(entry => entry.url);
-      
-      setSuggestions(filteredHistory);
-    } else {
-      setSuggestions([]);
-    }
-  };
+    setSuggestions(filteredSuggestions);
+  }, [filteredSuggestions]);
 
-  const handleUrlInputFocus = () => {
+  const handleUrlInputFocus = useCallback(() => {
     setIsEditing(true);
     setUrlInput(activeTab?.url || '');
-  };
+  }, [activeTab?.url]);
 
-  const handleUrlInputBlur = () => {
+  const handleUrlInputBlur = useCallback(() => {
     setTimeout(() => {
       setIsEditing(false);
       setUrlInput('');
       setSuggestions([]);
     }, 150);
-  };
+  }, []);
 
-  const handleSuggestionPress = (url: string) => {
+  const handleSuggestionPress = useCallback((url: string) => {
     if (!activeTab) return;
     
     const webViewRef = (activeTab as any).webViewRef;
@@ -131,18 +94,9 @@ export default function NavigationBar({ onTabPress, onNewTab }: NavigationBarPro
     setUrlInput('');
     setSuggestions([]);
     inputRef.current?.blur();
-  };
+  }, [activeTab]);
 
-  const handleReload = () => {
-    if (!activeTab) return;
-    
-    const webViewRef = (activeTab as any).webViewRef;
-    if (webViewRef) {
-      webViewRef.reload();
-    }
-  };
-
-  const handleShare = async () => {
+  const handleShare = useCallback(async () => {
     if (!activeTab || !activeTab.url) return;
     
     try {
@@ -168,7 +122,7 @@ export default function NavigationBar({ onTabPress, onNewTab }: NavigationBarPro
         message: `Copy this URL to share: ${activeTab.url}`,
       });
     }
-  };
+  }, [activeTab, toast]);
 
   return (
     <YStack
@@ -208,7 +162,7 @@ export default function NavigationBar({ onTabPress, onNewTab }: NavigationBarPro
             paddingHorizontal="$4"
             alignItems="center"
           >
-            {securityStatus.icon}
+            <SecurityIndicator url={activeTab?.url || ''} />
             {isPrivateMode && (
               <Shield size={16} color="$purple10" style={{ marginLeft: 4 }} />
             )}
@@ -278,7 +232,7 @@ export default function NavigationBar({ onTabPress, onNewTab }: NavigationBarPro
             size="$3"
             backgroundColor="transparent"
             circular
-            onPress={handleReload}
+            onPress={reload}
             icon={<RotateCcw size={20} />}
           />
           
@@ -287,7 +241,7 @@ export default function NavigationBar({ onTabPress, onNewTab }: NavigationBarPro
             backgroundColor="transparent"
             circular
             onPress={handleShare}
-            icon={<Share size={20}  />}
+            icon={<Share size={20} />}
           />
         </XStack>
       </XStack>

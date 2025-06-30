@@ -1,18 +1,15 @@
-import React from 'react';
-import {
-  Platform,
-} from 'react-native';
+import React, { useMemo, useCallback } from 'react';
+import { Platform } from 'react-native';
 import { useTheme } from 'tamagui';
 import {
   ArrowLeft,
   ArrowRight,
   Plus,
   Ellipsis,
-  Square,
   SquareStack,
-  Shield,
 } from 'lucide-react-native';
-import { useTabs, useSettings, useBrowserContext } from '@/contexts/BrowserContext';
+import { useBrowserTabs } from '@/hooks/useBrowserTabs';
+import { useWebViewNavigation } from '@/hooks/useWebViewNavigation';
 import { 
   XStack, 
   Text, 
@@ -33,34 +30,35 @@ export default function BottomNavigation({
   onDrawerPress,
   showHomepage 
 }: BottomNavigationProps) {
-  const { color } = useTheme()
-  const { tabs, activeTabId, isPrivateMode } = useTabs();
-  const { theme } = useSettings();
-  const { state } = useBrowserContext();
+  const { color } = useTheme();
+  const { tabs, isPrivateMode } = useBrowserTabs();
+  const { canGoBack, canGoForward, goBack, goForward } = useWebViewNavigation();
 
-  const activeTab = tabs.find(tab => tab.id === activeTabId);
+  const regularTabsCount = useMemo(() => 
+    tabs.filter(tab => !tab.isPrivate).length, 
+    [tabs]
+  );
+  
+  const privateTabsCount = useMemo(() => 
+    tabs.filter(tab => tab.isPrivate).length, 
+    [tabs]
+  );
 
-  const handleNavigation = (action: 'back' | 'forward') => {
-    if (!activeTab || showHomepage) return;
+  const handleNavigation = useCallback((action: 'back' | 'forward') => {
+    if (showHomepage) return;
     
-    const webViewRef = (activeTab as any).webViewRef;
-    if (webViewRef) {
-      switch (action) {
-        case 'back':
-          webViewRef.goBack();
-          break;
-        case 'forward':
-          webViewRef.goForward();
-          break;
-      }
+    switch (action) {
+      case 'back':
+        goBack();
+        break;
+      case 'forward':
+        goForward();
+        break;
     }
-  };
+  }, [showHomepage, goBack, goForward]);
 
-  const canGoBack = showHomepage ? false : activeTab?.canGoBack || false;
-  const canGoForward = showHomepage ? false : activeTab?.canGoForward || false;
-
-  const regularTabsCount = tabs.filter(tab => !tab.isPrivate).length;
-  const privateTabsCount = tabs.filter(tab => tab.isPrivate).length;
+  const navigationCanGoBack = showHomepage ? false : canGoBack;
+  const navigationCanGoForward = showHomepage ? false : canGoForward;
 
   return (
     <XStack
@@ -78,9 +76,9 @@ export default function BottomNavigation({
         chromeless
         circular
         onPress={() => handleNavigation('back')}
-        disabled={!canGoBack}
+        disabled={!navigationCanGoBack}
         icon={<ArrowLeft size={24} />}
-        opacity={!canGoBack ? 0.5 : 1}
+        opacity={!navigationCanGoBack ? 0.5 : 1}
       />
 
       {/* Next Page */}
@@ -88,9 +86,9 @@ export default function BottomNavigation({
         chromeless
         circular
         onPress={() => handleNavigation('forward')}
-        disabled={!canGoForward}
+        disabled={!navigationCanGoForward}
         icon={<ArrowRight size={24} />}
-        opacity={!canGoForward ? 0.5 : 1}
+        opacity={!navigationCanGoForward ? 0.5 : 1}
       />
 
       {/* Add Tab */}
