@@ -746,66 +746,53 @@ export default function BrowserWebView({
               quality: 0.6,
             }}
           >
-            {Platform.OS === 'web' ? (
-              // For web platform, render a simple placeholder
-              <View
-                flex={1}
-                backgroundColor="$background"
-                alignItems="center"
-                justifyContent="center"
-              >
-                <Homepage onSearch={handleHomepageSearch} />
-              </View>
-            ) : (
-              // For mobile platforms, use WebView
-              <WebView
-                ref={webViewRef}
-                incognito={tab.isPrivate}
-                source={{ uri: tab.url }}
-                userAgent={getUserAgent()}
-                onNavigationStateChange={handleNavigationStateChange}
-                onLoadProgress={handleLoadProgress}
-                onLoadStart={handleLoadStart}
-                onLoadEnd={handleLoadEnd}
-                onError={handleError}
-                onMessage={handleMessage}
-                injectedJavaScript={injectedJavaScript}
-                injectedJavaScriptBeforeContentLoaded={`
-                  window.addEventListener('beforeunload', function() {
-                    if (window.ReactNativeWebView) {
-                      window.ReactNativeWebView.postMessage(JSON.stringify({
-                        type: 'beforeUnload'
-                      }));
-                    }
-                  });
-                `}
-                style={{ flex: 1, backgroundColor: webViewBackgroundColor }}
-                allowsBackForwardNavigationGestures={Platform.OS === 'ios'}
-                decelerationRate="normal"
-                startInLoadingState={true}
-                scalesPageToFit={false}
-                mixedContentMode="always"
-                thirdPartyCookiesEnabled={!tab.isPrivate}
-                domStorageEnabled={!tab.isPrivate}
-                javaScriptEnabled={true}
-                pullToRefreshEnabled={true}
-                renderToHardwareTextureAndroid={true}
-                removeClippedSubviews={false}
-                {...(Platform.OS === 'android' && {
-                  overScrollMode: 'never',
-                  nestedScrollEnabled: true,
-                })}
-                {...(Platform.OS === 'ios' && {
-                  bounces: true,
-                  scrollEnabled: true,
-                  automaticallyAdjustContentInsets: false,
-                  contentInsetAdjustmentBehavior: 'never',
-                })}
-                onShouldStartLoadWithRequest={(request) => {
-                  return true;
-                }}
-              />
-            )}
+            <WebView
+              ref={webViewRef}
+              incognito={tab.isPrivate}
+              source={{ uri: tab.url }}
+              userAgent={getUserAgent()}
+              onNavigationStateChange={handleNavigationStateChange}
+              onLoadProgress={handleLoadProgress}
+              onLoadStart={handleLoadStart}
+              onLoadEnd={handleLoadEnd}
+              onError={handleError}
+              onMessage={handleMessage}
+              injectedJavaScript={injectedJavaScript}
+              injectedJavaScriptBeforeContentLoaded={`
+                window.addEventListener('beforeunload', function() {
+                  if (window.ReactNativeWebView) {
+                    window.ReactNativeWebView.postMessage(JSON.stringify({
+                      type: 'beforeUnload'
+                    }));
+                  }
+                });
+              `}
+              style={{ flex: 1, backgroundColor: webViewBackgroundColor }}
+              allowsBackForwardNavigationGestures={Platform.OS === 'ios'}
+              decelerationRate="normal"
+              startInLoadingState={true}
+              scalesPageToFit={false}
+              mixedContentMode="always"
+              thirdPartyCookiesEnabled={!tab.isPrivate}
+              domStorageEnabled={!tab.isPrivate}
+              javaScriptEnabled={true}
+              pullToRefreshEnabled={true}
+              renderToHardwareTextureAndroid={true}
+              removeClippedSubviews={false}
+              {...(Platform.OS === 'android' && {
+                overScrollMode: 'never',
+                nestedScrollEnabled: true,
+              })}
+              {...(Platform.OS === 'ios' && {
+                bounces: true,
+                scrollEnabled: true,
+                automaticallyAdjustContentInsets: false,
+                contentInsetAdjustmentBehavior: 'never',
+              })}
+              onShouldStartLoadWithRequest={(request) => {
+                return true;
+              }}
+            />
           </ViewShot>
         )}
       </View>
