@@ -11,7 +11,7 @@ export default function BoltBadge() {
       : 'https://storage.bolt.army/black_circle_360x360.png'
 
   // Responsive logic in JS
-  const size = media.md ? 300 : 100
+  const size = media.md ? 360 : 100
 
   return (
     <Stack position="absolute" top="$4" right="$4" zIndex={50}>
