@@ -2,7 +2,7 @@ import { Anchor, Image, Stack } from 'tamagui'
 
 export default function BoltBadge() {
   return (
-    <Stack position="absolute" top="$4" right="$4" zIndex={50}>
+    <Stack position="absolute" top="$4" right="$4" zIndex={50} background="black">
 <Anchor
               href="https://bolt.new/?rid=iqfyzf"
               target="_blank"
@@ -10,7 +10,7 @@ export default function BoltBadge() {
             >
               <Image
                 source={{
-                  uri: 'https://storage.bolt.army/logotext_poweredby_360w.svg',
+                  uri: 'https://storage.bolt.army/logotext_poweredby_360w.png',
                 }}
                 width={160}
                 height={32}
