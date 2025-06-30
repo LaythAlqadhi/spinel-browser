@@ -19,11 +19,11 @@ interface BrowserWebViewProps {
 // Global registry to store webView refs outside of Redux state
 const webViewRefs = new Map<string, any>();
 
-export default function BrowserWebView({ 
-  tab, 
-  isActive, 
+export default function BrowserWebView({
+  tab,
+  isActive,
   onHomepageStateChange,
-  emulationZoom = 100 
+  emulationZoom = 100,
 }: BrowserWebViewProps) {
   const webViewRef = useRef<WebView>(null);
   const viewShotRef = useRef<ViewShot>(null);
@@ -32,13 +32,14 @@ export default function BrowserWebView({
   const { addHistoryEntry: addEntry } = useBrowserHistory();
   const { settings, theme } = useBrowserSettings();
   const [showHomepage, setShowHomepage] = useState(false);
-  const [webViewBackgroundColor, setWebViewBackgroundColor] = useState('transparent');
+  const [webViewBackgroundColor, setWebViewBackgroundColor] =
+    useState('transparent');
   const [navigationState, setNavigationState] = useState({
     canGoBack: false,
     canGoForward: false,
     loading: false,
     url: tab.url,
-    title: tab.title
+    title: tab.title,
   });
 
   useEffect(() => {
@@ -68,9 +69,9 @@ export default function BrowserWebView({
   useEffect(() => {
     const isBlankTab = tab.url === 'about:blank';
     const shouldShowHomepage = isBlankTab;
-    
+
     setShowHomepage(shouldShowHomepage);
-    
+
     if (isActive && onHomepageStateChange) {
       onHomepageStateChange(shouldShowHomepage);
     }
@@ -81,7 +82,7 @@ export default function BrowserWebView({
       const timeoutId = setTimeout(() => {
         applyZoom(emulationZoom);
       }, 100);
-      
+
       return () => clearTimeout(timeoutId);
     }
   }, [emulationZoom, showHomepage, isActive]);
@@ -96,19 +97,25 @@ export default function BrowserWebView({
   }, [theme, showHomepage, tab.loading]);
 
   const captureThumbnail = async () => {
-    if (!mountedRef.current || !viewShotRef.current || !isActive || showHomepage || tab.url === 'about:blank') {
+    if (
+      !mountedRef.current ||
+      !viewShotRef.current ||
+      !isActive ||
+      showHomepage ||
+      tab.url === 'about:blank'
+    ) {
       return;
     }
 
     try {
       // Wait a bit for the page to fully render
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Double-check that component is still mounted and ref is valid
       if (!mountedRef.current || !viewShotRef.current) {
         return;
       }
-      
+
       const uri = await captureRef(viewShotRef.current, {
         format: 'jpg',
         quality: 0.6,
@@ -140,12 +147,12 @@ export default function BrowserWebView({
     if (title && title !== 'Loading...' && title.trim() !== '') {
       return title;
     }
-    
+
     // For blank tabs, show "New Tab"
     if (url === 'about:blank') {
       return 'New Tab';
     }
-    
+
     // Extract hostname from URL as fallback
     try {
       const urlObj = new URL(url);
@@ -162,11 +169,11 @@ export default function BrowserWebView({
       (function() {
         try {
           const zoomFactor = ${zoomLevel} / 100;
-                    
+
           if (document.documentElement) {
             document.documentElement.style.zoom = zoomFactor;
           }
-          
+
           if (!document.documentElement.style.zoom && document.body) {
             document.body.style.transform = 'scale(' + zoomFactor + ')';
             document.body.style.transformOrigin = 'top left';
@@ -185,7 +192,7 @@ export default function BrowserWebView({
           }
 
           document.documentElement.setAttribute('data-zoom-level', ${zoomLevel});
-          
+
           document.documentElement.style.setProperty('--zoom-factor', zoomFactor);
           document.documentElement.style.setProperty('--zoom-level', ${zoomLevel});
 
@@ -226,7 +233,7 @@ export default function BrowserWebView({
 
     const resetScript = `
       (function() {
-        try {          
+        try {
           if (document.documentElement) {
             document.documentElement.style.zoom = '';
           }
@@ -272,44 +279,52 @@ export default function BrowserWebView({
   };
 
   const handleNavigationStateChange = (navState: any) => {
-      // Always use the current URL for title generation if no title is provided
-      const displayTitle = getDisplayTitle(navState.title, navState.url);
+    // Always use the current URL for title generation if no title is provided
+    const displayTitle = getDisplayTitle(navState.title, navState.url);
 
-      setNavigationState({
-        canGoBack: navState.canGoBack,
-        canGoForward: navState.canGoForward,
-        loading: navState.loading,
-        url: navState.url,
-        title: displayTitle
-      });
+    setNavigationState({
+      canGoBack: navState.canGoBack,
+      canGoForward: navState.canGoForward,
+      loading: navState.loading,
+      url: navState.url,
+      title: displayTitle,
+    });
 
-      const favicon = extractFavicon(navState.url);
+    const favicon = extractFavicon(navState.url);
 
-      updateTab(tab.id, {
-        url: navState.url,
-        title: displayTitle,
-        canGoBack: navState.canGoBack,
-        canGoForward: navState.canGoForward,
-        loading: navState.loading,
-        favicon: favicon,
-      });
+    updateTab(tab.id, {
+      url: navState.url,
+      title: displayTitle,
+      canGoBack: navState.canGoBack,
+      canGoForward: navState.canGoForward,
+      loading: navState.loading,
+      favicon: favicon,
+    });
 
-      // Only add to history when page is fully loaded, has content, AND IS NOT A PRIVATE TAB
-      if (!navState.loading && navState.url && navState.url !== 'about:blank' && !tab.isPrivate) {
-        // Use the actual page title if available, otherwise use the display title
-        const historyTitle = (navState.title && navState.title !== 'Loading...') ? navState.title : displayTitle;
-        addEntry(navState.url, historyTitle, favicon);
+    // Only add to history when page is fully loaded, has content, AND IS NOT A PRIVATE TAB
+    if (
+      !navState.loading &&
+      navState.url &&
+      navState.url !== 'about:blank' &&
+      !tab.isPrivate
+    ) {
+      // Use the actual page title if available, otherwise use the display title
+      const historyTitle =
+        navState.title && navState.title !== 'Loading...'
+          ? navState.title
+          : displayTitle;
+      addEntry(navState.url, historyTitle, favicon);
+    }
+
+    const shouldHideHomepage = navState.url !== 'about:blank';
+    if (shouldHideHomepage && showHomepage) {
+      setShowHomepage(false);
+      if (isActive && onHomepageStateChange) {
+        onHomepageStateChange(false);
       }
+    }
+  };
 
-      const shouldHideHomepage = navState.url !== 'about:blank';
-      if (shouldHideHomepage && showHomepage) {
-        setShowHomepage(false);
-        if (isActive && onHomepageStateChange) {
-          onHomepageStateChange(false);
-        }
-      }
-    };
-  
   const handleLoadProgress = (event: any) => {
     updateTab(tab.id, {
       progress: event.nativeEvent.progress,
@@ -318,45 +333,45 @@ export default function BrowserWebView({
 
   const handleLoadStart = (event: any) => {
     const { url } = event.nativeEvent;
-    
+
     if (emulationZoom !== 100) {
       resetZoom();
     }
-    
+
     // Reset title to URL-based title when starting to load a new page
     const loadingTitle = getDisplayTitle('', url);
-    
-    setNavigationState(prev => ({
+
+    setNavigationState((prev) => ({
       ...prev,
       loading: true,
       url: url,
-      title: loadingTitle
+      title: loadingTitle,
     }));
 
     updateTab(tab.id, {
       loading: true,
       progress: 0,
       url: url,
-      title: loadingTitle
+      title: loadingTitle,
     });
-    
+
     const loadingColor = theme === 'dark' ? '#000000' : '#FFFFFF';
     setWebViewBackgroundColor(loadingColor);
   };
 
   const handleLoadEnd = (event: any) => {
     const { url } = event.nativeEvent;
-    
-    setNavigationState(prev => ({
+
+    setNavigationState((prev) => ({
       ...prev,
       loading: false,
-      url: url
+      url: url,
     }));
 
     updateTab(tab.id, {
       loading: false,
       progress: 1,
-      url: url
+      url: url,
     });
 
     if (emulationZoom !== 100 && isActive) {
@@ -380,9 +395,9 @@ export default function BrowserWebView({
   };
 
   const handleError = (event: any) => {
-    setNavigationState(prev => ({
+    setNavigationState((prev) => ({
       ...prev,
-      loading: false
+      loading: false,
     }));
 
     updateTab(tab.id, {
@@ -395,30 +410,30 @@ export default function BrowserWebView({
     (function() {
       function applyBrowserTheme() {
         const isDark = ${theme === 'dark'};
-        
+
         let themeColorMeta = document.querySelector('meta[name="theme-color"]');
         if (!themeColorMeta) {
           themeColorMeta = document.createElement('meta');
           themeColorMeta.name = 'theme-color';
           document.head.appendChild(themeColorMeta);
         }
-        
+
         const bodyBg = window.getComputedStyle(document.body).backgroundColor;
         const htmlBg = window.getComputedStyle(document.documentElement).backgroundColor;
-        
+
         let backgroundColor = bodyBg !== 'rgba(0, 0, 0, 0)' ? bodyBg : htmlBg;
-        
+
         if (backgroundColor === 'rgba(0, 0, 0, 0)' || backgroundColor === 'transparent') {
           backgroundColor = isDark ? '#000000' : '#FFFFFF';
         }
-        
-        if (document.body.style.backgroundColor === '' || 
+
+        if (document.body.style.backgroundColor === '' ||
             document.body.style.backgroundColor === 'transparent') {
           document.body.style.backgroundColor = backgroundColor;
         }
-        
+
         themeColorMeta.content = backgroundColor;
-        
+
         let viewportMeta = document.querySelector('meta[name="viewport"]');
         if (!viewportMeta) {
           viewportMeta = document.createElement('meta');
@@ -426,7 +441,7 @@ export default function BrowserWebView({
           viewportMeta.content = 'width=device-width, initial-scale=1.0, viewport-fit=cover';
           document.head.appendChild(viewportMeta);
         }
-        
+
         if (window.ReactNativeWebView) {
           window.ReactNativeWebView.postMessage(JSON.stringify({
             type: 'backgroundColor',
@@ -434,7 +449,7 @@ export default function BrowserWebView({
           }));
         }
       }
-      
+
       function sendNavigationState() {
         if (window.ReactNativeWebView) {
           window.ReactNativeWebView.postMessage(JSON.stringify({
@@ -446,7 +461,7 @@ export default function BrowserWebView({
           }));
         }
       }
-      
+
       // Send updated title when it changes
       function sendTitleUpdate() {
         if (window.ReactNativeWebView) {
@@ -457,7 +472,7 @@ export default function BrowserWebView({
           }));
         }
       }
-      
+
       // Popup blocking functionality
       const blockPopups = ${settings.blockPopups};
       if (blockPopups) {
@@ -474,13 +489,13 @@ export default function BrowserWebView({
           }
           return null;
         };
-        
+
         // Block other popup methods
         window.showModalDialog = function() {
           console.log('Modal dialog blocked');
           return null;
         };
-        
+
         // Prevent new window creation via target="_blank"
         document.addEventListener('click', function(e) {
           const target = e.target;
@@ -496,7 +511,7 @@ export default function BrowserWebView({
           }
         });
       }
-      
+
       // Watch for title changes
       const titleObserver = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
@@ -508,7 +523,7 @@ export default function BrowserWebView({
           }
         });
       });
-      
+
       // Observe changes to the document head for title updates
       if (document.head) {
         titleObserver.observe(document.head, {
@@ -516,7 +531,7 @@ export default function BrowserWebView({
           subtree: true
         });
       }
-      
+
       // Also watch for direct title property changes
       let lastTitle = document.title;
       setInterval(function() {
@@ -525,7 +540,7 @@ export default function BrowserWebView({
           sendTitleUpdate();
         }
       }, 500);
-      
+
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
           applyBrowserTheme();
@@ -537,22 +552,22 @@ export default function BrowserWebView({
         sendNavigationState();
         sendTitleUpdate();
       }
-      
+
       window.addEventListener('load', function() {
         applyBrowserTheme();
         sendNavigationState();
         sendTitleUpdate();
       });
-      
+
       window.addEventListener('popstate', function() {
         sendNavigationState();
         setTimeout(sendTitleUpdate, 100);
       });
-      
+
       const observer = new MutationObserver(function(mutations) {
         let shouldUpdate = false;
         mutations.forEach(function(mutation) {
-          if (mutation.type === 'attributes' && 
+          if (mutation.type === 'attributes' &&
               (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
             shouldUpdate = true;
           }
@@ -561,7 +576,7 @@ export default function BrowserWebView({
           setTimeout(applyBrowserTheme, 100);
         }
       });
-      
+
       observer.observe(document.body, {
         attributes: true,
         attributeFilter: ['style', 'class'],
@@ -573,18 +588,18 @@ export default function BrowserWebView({
         html {
           zoom: var(--zoom-factor, 1);
         }
-        
+
         html:not([style*="zoom"]) body {
           transform-origin: top left;
         }
-        
+
         @media screen {
           :root {
             --zoom-factor: 1;
             --zoom-level: 100;
           }
         }
-        
+
         html, body {
           overflow-x: auto !important;
           min-height: 100vh;
@@ -592,44 +607,44 @@ export default function BrowserWebView({
       \`;
       document.head.appendChild(zoomCSS);
     })();
-    
+
     true;
   `;
 
   const handleMessage = (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
-      
+
       if (data.type === 'backgroundColor' && data.color) {
         setWebViewBackgroundColor(data.color);
       } else if (data.type === 'navigationState') {
         const displayTitle = getDisplayTitle(data.title, data.url);
-        
-        setNavigationState(prev => ({
+
+        setNavigationState((prev) => ({
           ...prev,
           canGoBack: data.canGoBack,
           url: data.url,
-          title: displayTitle
+          title: displayTitle,
         }));
-        
+
         updateTab(tab.id, {
           canGoBack: data.canGoBack,
           url: data.url,
-          title: displayTitle
+          title: displayTitle,
         });
       } else if (data.type === 'titleUpdate') {
         // Handle real-time title updates from the page
         const displayTitle = getDisplayTitle(data.title, data.url);
-        
-        setNavigationState(prev => ({
+
+        setNavigationState((prev) => ({
           ...prev,
           title: displayTitle,
-          url: data.url
+          url: data.url,
         }));
-        
+
         updateTab(tab.id, {
           title: displayTitle,
-          url: data.url
+          url: data.url,
         });
       } else if (data.type === 'popupBlocked') {
         console.log('Popup blocked:', data);
@@ -678,31 +693,33 @@ export default function BrowserWebView({
       } else {
         const searchEngine = settings.defaultSearchEngine;
         const searchUrls = {
-          google: `https://www.google.com/search?q=${encodeURIComponent(url)}`,
+          google: `https://www.google.com/search?q=${encodeURIComponent(
+            url,
+          )}`,
           bing: `https://www.bing.com/search?q=${encodeURIComponent(url)}`,
           duckduckgo: `https://duckduckgo.com/?q=${encodeURIComponent(url)}`,
         };
         formattedUrl = searchUrls[searchEngine];
       }
     }
-    
+
     const displayTitle = getDisplayTitle('', formattedUrl);
-    
-    setNavigationState(prev => ({
+
+    setNavigationState((prev) => ({
       ...prev,
       loading: true,
       url: formattedUrl,
-      title: displayTitle
+      title: displayTitle,
     }));
-    
-    updateTab(tab.id, { 
+
+    updateTab(tab.id, {
       url: formattedUrl,
       title: displayTitle,
       loading: true,
       canGoBack: false,
-      canGoForward: false
+      canGoForward: false,
     });
-    
+
     setShowHomepage(false);
     if (isActive && onHomepageStateChange) {
       onHomepageStateChange(false);
@@ -786,7 +803,7 @@ export default function BrowserWebView({
               onShouldStartLoadWithRequest={(request) => {
                 return true;
               }}
-              applicationNameForUserAgent='Spinel/1.0.0'
+              applicationNameForUserAgent="Spinel/1.0.0"
             />
           </ViewShot>
         )}
