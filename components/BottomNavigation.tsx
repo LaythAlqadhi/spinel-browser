@@ -30,7 +30,7 @@ export default function BottomNavigation({
   onDrawerPress,
   showHomepage 
 }: BottomNavigationProps) {
-  const { color } = useTheme();
+  const { background, color } = useTheme();
   const { tabs, isPrivateMode } = useBrowserTabs();
   const { canGoBack, canGoForward, goBack, goForward } = useWebViewNavigation();
 
@@ -114,7 +114,7 @@ export default function BottomNavigation({
             position="absolute"
             top={-12}
             right={-12}
-            backgroundColor={isPrivateMode ? "$purple8" : "$green8"}
+            backgroundColor={isPrivateMode ? "$purple8" : color.val}
             borderRadius="$10"
             minWidth={24}
             height={24}
@@ -124,7 +124,7 @@ export default function BottomNavigation({
           >
             <Text 
               fontSize="$1" 
-              color="white" 
+              color={isPrivateMode ? "white" : background.val}
               fontWeight="600"
               lineHeight={18}
             >
